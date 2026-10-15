@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Inter, system-ui, sans-serif;
+  background: #fafaf8;
+  color: #1a1a18;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+}
+
+:focus-visible {
+  outline: 2px solid #a87f45;
+  outline-offset: 2px;
+}
+
+@layer components {
+  .container-store {
+    @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-ink-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-ink-700 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-full border border-ink-300 bg-white px-6 py-3 text-sm font-semibold text-ink-900 transition hover:border-ink-900;
+  }
+  .input {
+    @apply w-full rounded-xl border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-300 focus:border-clay-500;
+  }
+  .label {
+    @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-500;
+  }
+  .field-error {
+    @apply mt-1 text-xs text-red-600;
+  }
+  .card {
+    @apply rounded-2xl border border-ink-200/70 bg-white;
+  }
+  .link-underline {
+    @apply font-medium underline decoration-ink-300 underline-offset-4 hover:decoration-ink-900;
+  }
+}

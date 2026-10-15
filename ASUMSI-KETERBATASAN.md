@@ -1,0 +1,44 @@
+# Asumsi & Keterbatasan — Abibas
+
+## Asumsi yang dipakai (ditandai eksplisit)
+
+1. **Produk & stok demo.** 8 produk dan semua stok adalah data demonstrasi,
+   struktur disamakan antara `src/data/products.demo.js`, `Code.gs`, dan Sheets.
+2. **Tabel ukuran ilustratif.** Nilai cm (S 48×68 … XL 54×74) berlabel contoh;
+   bukan spesifikasi aktual dan tidak menjamin kecocokan.
+3. **Kebijakan penukaran demo.** Isi mengikuti PDF (gratis 1× / 7 hari / label
+   utuh); memerlukan konfirmasi pemilik sebelum dipakai komersial.
+4. **Ongkir simulasi.** Reguler 15rb, Ekspres 28rb, Hemat 10rb — bukan API kurir.
+5. **Pembayaran simulasi.** Transfer/QRIS/e-wallet tidak memproses uang nyata.
+6. **Gambar ilustrasi.** Placeholder SVG lokal berlabel demo, bukan foto aktual.
+7. **Customer Profile = hipotesis.** Segmen & prioritas pain/gain adalah penilaian
+   pemilik brand di PDF, bukan hasil survei — belum tervalidasi.
+
+## Keterbatasan teknis
+
+- **Integrasi Sheets belum terverifikasi end-to-end** (menunggu URL Apps Script
+  + Sheet nyata + env). Frontend Mode Demo Lokal terbukti jalan; Mode Sheets
+  menunggu konfigurasi manual (lihat LAPORAN-PENGUJIAN.md).
+- **Sheets bukan database relasional.** Tidak ada transaksi atomik penuh dengan
+  rollback; `LockService` mengurangi race stok terakhir, tetapi kegagalan tulis
+  parsial hanya ditandai `perlu_audit` untuk pemeriksaan manual.
+- **Kuota Apps Script/Sheets terbatas** (baca/tulis per hari, 30 dtk eksekusi) —
+  cocok untuk demo kelas, bukan produksi.
+- **Hashing dua sisi didokumentasikan:** Vercel memakai `scrypt` Node.js;
+  Apps Script hanya menyimpan `passwordHash` dan memverifikasi sesi via
+  `tokenHash` SHA-256. Password mentah tidak pernah disimpan/dilog.
+- **Nama "Abibas" & visual orisinal** untuk akademik; tidak ada klaim aman hukum
+  dan tidak meniru identitas merek lain.
+
+## Pemetaan fitur → VPC (ringkas)
+
+| Tahap | Kebutuhan | Elemen VPC | Fitur UI | Status |
+|---|---|---|---|---|
+| Beranda | Functional job, Gain 3 | Products & Services | Hero + produk pilihan + CTA | Selesai (demo) |
+| Katalog | Gain 4 | Creator 2 | Search + filter kategori/ukuran | Selesai (demo) |
+| Detail produk | Pain 1, 2, 3 | Reliever 1, 2, 3 | Ukuran+stok, tabel cm, galeri, kebijakan | Selesai (demo) |
+| Keranjang | Pain 4 | Reliever 4 | Rincian + subtotal | Selesai (demo) |
+| Daftar/login | Gain 4 | Creator 3 | Auth + sesi + redirect next | Selesai (demo); Sheets menunggu verifikasi |
+| Checkout | Pain 3, 4; Gain 2 | Reliever 3, 4 | Total + ongkir + bayar simulasi | Selesai (demo); Sheets menunggu verifikasi |
+| Konfirmasi | Emotional job | Reliever 5 | Nomor + rincian (setelah 200 OK) | Selesai (demo) |
+| Riwayat | Pain 5; Gain 5 | Reliever 5; Creator 4 | Status tiap tahap, milik sendiri | Selesai (demo); Sheets menunggu verifikasi |
