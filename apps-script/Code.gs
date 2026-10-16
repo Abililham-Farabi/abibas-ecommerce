@@ -49,6 +49,14 @@ function doPost(e) {
   }
 }
 
+function doGet() {
+  var out = ContentService.createTextOutput(
+    JSON.stringify({ ok: true, service: 'abibas-gas', usage: 'Kirim POST JSON {secret, action, payload}' }),
+  );
+  out.setMimeType(ContentService.MimeType.JSON);
+  return out;
+}
+
 function fail(message, status) {
   var e = new Error(message);
   e.status = status || 400;
