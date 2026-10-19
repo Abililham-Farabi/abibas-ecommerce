@@ -4,6 +4,11 @@ Tanggal: 15 Okt 2026. Lingkungan: Node v24, npm 11, Vite build lokal.
 Integrasi Google Sheets: **BELUM TERVERIFIKASI** (belum ada URL Apps Script /
 Sheet nyata / env). Tidak ada hasil yang dikarang.
 
+**Pembaruan 19 Okt 2026** — lapisan Apps Script kini **terverifikasi sebagian**
+(lihat §H): URL live aktif, `doGet` sehat, `doPost` benar-benar terpanggil.
+**Masih belum terverifikasi**: aksi autentik (butuh nilai `SHARED_SECRET`) dan
+alur end-to-end lewat Vercel (belum ada env/proyek Vercel).
+
 ## A. Build
 
 | Perintah | Hasil |
@@ -27,8 +32,8 @@ Sheet nyata / env). Tidak ada hasil yang dikarang.
 | 15 | Checkout tanpa sesi | Lolos (ProtectedRoute → `/login?next=/checkout`) |
 | 16–18 | Hitung ulang backend + snapshot + kurangi stok | Kode selesai (`createOrderAtomic` + LockService); **menunggu Sheet nyata** |
 | 19–20 | Riwayat milik sendiri; anti-intip | Frontend demo lolos; backend `getOrderWithItems` cek userId — **menunggu Sheet nyata** |
-| 21 | Mode PVC konsisten PDF | Lolos (`/pvc` + badge) |
-| 22 | Demo vs Sheets dibedakan | Lolos (badge + banner + tanpa fallback diam-diam) |
+| 21 | Mode PVC konsisten PDF | N/A — Mode PVC & `/pvc` dihapus dari storefront (lihat §F baris 3: `/pvc` kini 404) |
+| 22 | Demo vs Sheets dibedakan | Sebagian — **tidak ada badge/banner mode** di kode; pemisahan hanya pada jalur data (demo = localStorage, sheets = `/api/*`). Fallback diam-diam pernah ada (bug) dan kini diperbaiki: gagal muat menampilkan error, data demo tidak ikut ditampilkan |
 | 23 | Responsif + terang/gelap | Lolos (kelas Tailwind + toggle) |
 | 24 | Kebijakan & harga sesuai PDF | Lolos (teks + harga kategori) |
 
@@ -44,7 +49,9 @@ Sheet nyata / env). Tidak ada hasil yang dikarang.
 - Stok berubah sebelum checkout → `createOrderAtomic` baca ulang + 409 bila kurang. **Belum diuji live.**
 - Race stok terakhir → `LockService.waitLock(20000)`. **Belum diuji live.**
 - GAS down / non-JSON / tulis parsial / sesi kedaluwarsa / akses pesanan orang lain → kode penanganan ada (`503/502/504/401/404`, tandai `perlu_audit`). **Belum diuji live.**
-- Frontend Sheets gagal → tampil pesan + tetap tawarkan data demo secara eksplisit (tidak menyamar).
+- Frontend Sheets gagal → tampil pesan error, data demo **tidak** ditampilkan
+  (diperbaiki 19 Okt 2026; sebelumnya `Home.jsx`/`Catalog.jsx` menelan error
+  dan diam-diam menampilkan data demo palsu).
 
 ## F. Redesign storefront (15 Okt 2026, lanjutan)
 
@@ -75,10 +82,49 @@ benchmark dipakai sebagai konvensi UX, bukan tiruan visual.
 | 1–2 | Build lolos tanpa error | Lolos (50 modul) |
 | 3 | Rute `/`, `/katalog`, `/katalog?kat=Hoodie&sort=termurah`, `/produk/AB-H001`, `/keranjang`, `/checkout`, `/pesanan`, `/panduan-ukuran` 200 via dev server | Lolos via curl |
 | 4–7 | Sorting, breadcrumb, drawer filter, feedback PDP | Logika terverifikasi di kode + bundle; interaksi klik browser manual belum dilakukan |
-| 8–12 | Cart, auth, checkout, riwayat | Business logic & API tidak diubah (`node --check` API lolos) |
+| 8–12 | Cart, auth, checkout, riwayat | Business logic & API tidak diubah (`node --check` API lolos — catatan: cek itu **hanya sintaks**, tidak mendeteksi import path rusak yang menimbulkan `MODULE_NOT_FOUND`; sudah diperbaiki, lihat §H) |
 | 13–14 | Tanpa PVC; tanpa gambar rusak | Lolos (grep nol sisa; 2 foto kampanye valid JPEG, 2 dicek visual, served 200, ada di bundle) |
 | 15–16 | Katalog 1200–1360px; backend utuh | Lolos (container 1280px; `api/`, GAS, context tak diubah) |
 | 17–18 | Sheets | Tetap **belum terverifikasi** (butuh akses nyata) |
+
+## H. Temuan & perbaikan 19 Okt 2026
+
+### Verifikasi live lapisan Apps Script (tanpa Vercel)
+
+| Uji | Perintah | Hasil |
+|---|---|---|
+| Health | `GET /exec` | 302 → echo, lalu **200** `{"ok":true,"service":"abibas-gas",…}` — script & spreadsheet aktif |
+| `doPost` benar-benar terpanggil | `POST {"action":"ping"}` (secret sengaja salah) | 302 → GET echo → **403** `{"ok":false,"error":"Akses ditolak."}` |
+| URL lama (`apps-script/catatan` sebelumnya) | `GET`/`POST` `/exec` lama | **404** — deployment mati; diganti **Versi 7** (19 Okt 2026 13.26) |
+| Aksi autentik (`ping`/`getProducts` + secret benar) | — | **Belum diuji** (nilai secret tidak tersedia di sesi ini) |
+| Alur end-to-end via Vercel | — | **Belum** (belum ada env/proyek Vercel) |
+
+### Bug yang ditemukan & diperbaiki
+
+1. **`redirect: 'follow'` merusak semua panggilan.** Apps Script membalas POST
+   dengan 302 ke `script.googleusercontent.com`. Dengan `redirect: 'follow'`,
+   fetch menurunkan POST menjadi GET dan membuang bodi → `doPost` tidak pernah
+   terpanggil, respon akhir HTML → seluruh `/api/*` gagal (502).
+   **Fix:** `api/_lib/gas.js` memakai `redirect: 'manual'` lalu GET terpisah
+   ke `Location`.
+2. **Import path rusak** di `api/orders/[id].js` (`../../_lib/gas.js` →
+   `../_lib/gas.js`) → `GET /api/orders/:id` selalu 500 `MODULE_NOT_FOUND`.
+   `node --check` tidak menangkap ini karena hanya memvalidasi sintaks.
+3. **`sendError` menelan pesan 503** (misconfig env) → kini ditampilkan.
+4. **Fallback diam-diam** di `Home.jsx`/`Catalog.jsx` pada mode sheets → kini
+   error ditampilkan dan data demo tidak ditampilkan.
+5. **`getOrdersByUser`** tidak menghitung jumlah item → `itemCount` ditambahkan.
+6. **`Code.gs`**: `updatedAt` (kolom 12) hanya ditulis untuk produk pertama;
+   validasi stok dilakukan *setelah* baris order/items ditulis (risiko pesanan
+   yatim bila stok berubah) → kini kebutuhan stok diakumulasi per sel dan
+   divalidasi **sebelum** menulis apa pun.
+
+### Terverifikasi lewat mock (fetch di-mock, handler API asli)
+
+`GET /api/orders/:id` → 200 `{order:…}` · `GET /api/orders` → 200
+`{orders:[{itemCount:3}]}` · `GET /api/products` → 200 · `sendError` 503 →
+pesan asli, 500 → "Terjadi kesalahan server." · `npm run lint` dan
+`npm run build` lolos.
 
 ## E. Yang harus dilakukan pemilik (agar integrasi terverifikasi)
 

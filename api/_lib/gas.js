@@ -19,13 +19,27 @@ export async function callGas(action, payload = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 25000);
   try {
-    const res = await fetch(GAS_URL, {
+    let res = await fetch(GAS_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ secret: SHARED_SECRET, action, payload }),
       signal: controller.signal,
-      redirect: 'follow',
+      redirect: 'manual',
     });
+    // Apps Script menjawab POST dengan 302 menuju script.googleusercontent.com.
+    // Bila redirect diikuti otomatis, fetch menurunkan POST menjadi GET dan
+    // membuang bodi — doPost tidak akan pernah terpanggil. Hasil asli tersedia
+    // lewat GET terpisah ke URL lokasi tersebut, jadi ikuti manual.
+    for (let hop = 0; res.status >= 300 && res.status < 400 && hop < 3; hop++) {
+      const location = res.headers.get('location');
+      if (!location) break;
+      res = await fetch(location, { signal: controller.signal, redirect: 'manual' });
+    }
+    if (res.status >= 300 && res.status < 400) {
+      const err = new Error('Respons database tidak valid.');
+      err.status = 502;
+      throw err;
+    }
     const text = await res.text();
     let data;
     try {
@@ -60,7 +74,11 @@ export function sendJson(res, status, obj) {
 
 export function sendError(res, err) {
   const status = err?.status && Number.isInteger(err.status) ? err.status : 500;
-  const message = status >= 500 ? 'Terjadi kesalahan server.' : err.message || 'Permintaan gagal.';
+  const verbose = status === 503;
+  const message =
+    status >= 500 && !verbose
+      ? 'Terjadi kesalahan server.'
+      : err.message || 'Permintaan gagal.';
   sendJson(res, status, { error: message });
 }
 

@@ -74,6 +74,13 @@ Ringkasan kolom:
 1. Tempel `apps-script/Code.gs` ke editor Apps Script (lihat panduan).
 2. Script Properties: `SHARED_SECRET` = string acak ≥ 32 karakter.
 3. Deploy sebagai Web App (Execute as: Me, akses: Anyone), salin URL-nya.
+
+   > Apps Script menjawab setiap request dengan **302** ke
+   > `script.googleusercontent.com`. `api/_lib/gas.js` mengikuti redirect itu
+   > secara **manual** (GET terpisah) — jangan diubah ke `redirect: 'follow'`,
+   > karena fetch akan menurunkan POST menjadi GET sehingga `doPost` tidak
+   > pernah terpanggil dan semua `/api/*` gagal.
+
 4. `.env` lokal (untuk uji backend) / Environment Variables Vercel (Production):
 
 ```
@@ -91,7 +98,8 @@ VITE_DATA_MODE=sheets
 2. Vercel → New Project → import repo → framework otomatis (Vite).
 3. Tambahkan 3 env di atas (Production + Preview).
 4. Deploy. Frontend + `/api/*` ter-host dalam satu domain.
-5. Uji: buka `/katalog` (badge harus `Mode Google Sheets`), register → login → checkout → riwayat.
+5. Uji: buka `/katalog` — produk harus termuat dari Sheets (bukan data demo),
+   register → login → checkout → riwayat.
 
 ## Cara menguji
 
@@ -103,8 +111,9 @@ VITE_DATA_MODE=sheets
   berkurang di Sheets tab Products.
 - **Riwayat**: `/pesanan` hanya milik akun login; buka ID pesanan orang lain
   manual → harus 404, bukan bocor.
-- **Mode Demo Lokal**: set `VITE_DATA_MODE=demo` → badge kuning tampil, akun
-  & pesanan hanya di localStorage, tidak menyentuh Sheets.
+- **Mode Demo Lokal**: set `VITE_DATA_MODE=demo` → tanpa panggilan `/api/*`,
+  akun & pesanan hanya di localStorage, tidak menyentuh Sheets. Tidak ada
+  badge khusus mode; bedakan lewat env build / tab Network.
 
 ## Batasan keamanan & skala
 

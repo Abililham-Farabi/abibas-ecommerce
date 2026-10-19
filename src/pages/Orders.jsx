@@ -41,7 +41,8 @@ export default function Orders() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{o.orderId}</p>
                   <p className="mt-0.5 text-xs text-ink-400">
-                    {formatDate(o.createdAt)} · {(o.items || []).length} item
+                    {formatDate(o.createdAt)} ·{' '}
+                    {o.itemCount != null ? o.itemCount : (o.items || []).length} item
                   </p>
                   <div className="mt-1.5">
                     <OrderStatus status={o.orderStatus} />

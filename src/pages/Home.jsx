@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
+import { Alert } from '../components/ui';
 import { api } from '../api/client';
 import { DEMO_PRODUCTS } from '../data/products.demo';
 import { isDemoMode } from '../utils/format';
@@ -13,10 +14,17 @@ const CATS = [
 
 export default function Home() {
   const [products, setProducts] = useState(DEMO_PRODUCTS);
+  const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
     if (isDemoMode()) return;
-    api.getProducts().then((d) => setProducts(d.products)).catch(() => {});
+    api
+      .getProducts()
+      .then((d) => setProducts(d.products))
+      .catch((e) => {
+        setProducts([]);
+        setLoadError(e.message || 'Gagal memuat produk dari database.');
+      });
   }, []);
 
   const featured = products.slice(0, 4);
@@ -97,11 +105,17 @@ export default function Home() {
             Lihat semua →
           </Link>
         </div>
-        <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
-          {featured.map((p) => (
-            <ProductCard key={p.productId} product={p} />
-          ))}
-        </div>
+        {loadError ? (
+          <div className="mt-5">
+            <Alert>{loadError}</Alert>
+          </div>
+        ) : (
+          <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
+            {featured.map((p) => (
+              <ProductCard key={p.productId} product={p} />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Kampanye sekunder: esensial harian */}

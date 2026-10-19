@@ -13,6 +13,9 @@ dist-ssr
 *.local
 .env
 
+# Catatan lokal berisi URL/ID deployment Apps Script (bukan milik repo)
+apps-script/catatan
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

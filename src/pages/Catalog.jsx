@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
-import { Modal } from '../components/ui';
+import { Modal, Alert } from '../components/ui';
 import { api } from '../api/client';
 import { CATEGORIES, DEMO_PRODUCTS, SIZES, stockOf } from '../data/products.demo';
 import { isDemoMode } from '../utils/format';
@@ -21,6 +21,7 @@ export default function Catalog() {
   const [params, setParams] = useSearchParams();
   const [products, setProducts] = useState(DEMO_PRODUCTS);
   const [loading, setLoading] = useState(!isDemoMode());
+  const [loadError, setLoadError] = useState('');
   const [drawer, setDrawer] = useState(false);
 
   const q = params.get('q') || '';
@@ -33,7 +34,10 @@ export default function Catalog() {
     api
       .getProducts()
       .then((d) => setProducts(d.products))
-      .catch(() => {})
+      .catch((e) => {
+        setProducts([]);
+        setLoadError(e.message || 'Gagal memuat produk dari database.');
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -192,6 +196,10 @@ export default function Catalog() {
               <div className="mt-2 h-4 w-1/3 rounded bg-ink-100" />
             </div>
           ))}
+        </div>
+      ) : loadError ? (
+        <div className="mt-8">
+          <Alert>{loadError}</Alert>
         </div>
       ) : filtered.length === 0 ? (
         <div className="mt-8 rounded-2xl border border-dashed border-ink-200 py-16 text-center">

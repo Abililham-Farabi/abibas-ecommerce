@@ -240,6 +240,14 @@ function productMap() {
 
 function getOrdersByUser(userId) {
   var r = rows(SHEETS.Orders);
+  var ri = rows(SHEETS.OrderItems);
+  var oidCol = ri.header.indexOf('orderId');
+  if (oidCol < 0) oidCol = 1;
+  var itemCount = {};
+  for (var j = 0; j < ri.data.length; j++) {
+    var k = String(ri.data[j][oidCol]);
+    itemCount[k] = (itemCount[k] || 0) + 1;
+  }
   var out = [];
   for (var i = 0; i < r.data.length; i++) {
     var o = toObj(r.header, r.data[i]);
@@ -257,6 +265,7 @@ function getOrdersByUser(userId) {
         paymentMethod: o.paymentMethod,
         paymentStatus: o.paymentStatus,
         orderStatus: o.orderStatus,
+        itemCount: itemCount[String(o.orderId)] || 0,
         createdAt: o.createdAt,
         updatedAt: o.updatedAt,
       });
@@ -360,6 +369,35 @@ function createOrderAtomic(p) {
     var now = new Date().toISOString();
     var orderId = 'ORD-' + new Date().getTime().toString(36).toUpperCase() + Math.floor(Math.random() * 1296).toString(36).toUpperCase();
 
+    // Akumulasi kebutuhan per sel stok, lalu validasi stok terkini SEBELUM
+    // menulis baris apa pun — kegagalan stok tidak boleh meninggalkan
+    // pesanan yatim di sheet.
+    var shProd = sheet(SHEETS.Products);
+    var colBySize = { S: 7, M: 8, L: 9, XL: 10 }; // kolom stockS..stockXL (1-indexed)
+    var need = {};
+    for (var v = 0; v < lines.length; v++) {
+      var LV = lines[v];
+      var lk = LV.rowIndex + ':' + colBySize[LV.size];
+      if (!need[lk]) {
+        need[lk] = {
+          rowIndex: LV.rowIndex,
+          col: colBySize[LV.size],
+          qty: 0,
+          name: LV.productNameSnapshot,
+          size: LV.size,
+        };
+      }
+      need[lk].qty += LV.quantity;
+    }
+    var needKeys = Object.keys(need);
+    for (var nk = 0; nk < needKeys.length; nk++) {
+      var N = need[needKeys[nk]];
+      var available = Number(shProd.getRange(N.rowIndex, N.col).getValue()) || 0;
+      if (available < N.qty) {
+        fail('Stok ' + N.name + ' ukuran ' + N.size + ' tersisa ' + available + '.', 409);
+      }
+    }
+
     sheet(SHEETS.Orders).appendRow([
       orderId, p.userId, String(p.recipientName).trim(), String(p.phone).trim(), String(p.address).trim(),
       p.courier, shippingCost, subtotal, total, p.paymentMethod,
@@ -381,19 +419,17 @@ function createOrderAtomic(p) {
       throw itemErr;
     }
 
-    // Kurangi stok per ukuran.
-    var shProd = sheet(SHEETS.Products);
-    var colBySize = { S: 7, M: 8, L: 9, XL: 10 }; // kolom stockS..stockXL (1-indexed)
-    for (var m = 0; m < lines.length; m++) {
-      var LM = lines[m];
-      var col = colBySize[LM.size];
-      var cell = shProd.getRange(LM.rowIndex, col);
+    // Kurangi stok per sel dan perbarui updatedAt (kolom 12) tiap produk
+    // yang stoknya berubah.
+    for (var dk = 0; dk < needKeys.length; dk++) {
+      var D = need[needKeys[dk]];
+      var cell = shProd.getRange(D.rowIndex, D.col);
       var current = Number(cell.getValue()) || 0;
-      var next = current - LM.quantity;
-      if (next < 0) fail('Stok berubah saat checkout untuk ' + LM.productNameSnapshot + ' (' + LM.size + ').', 409);
+      var next = current - D.qty;
+      if (next < 0) fail('Stok berubah saat checkout untuk ' + D.name + ' (' + D.size + ').', 409);
       cell.setValue(next);
+      shProd.getRange(D.rowIndex, 12).setValue(now);
     }
-    shProd.getRange(findProductRowIndex(lines[0].productId), 12).setValue(now);
 
     return getOrderWithItems(orderId, p.userId);
   } finally {

@@ -1,4 +1,4 @@
-import { callGas, requireSession, sendError, sendJson } from '../../_lib/gas.js';
+import { callGas, requireSession, sendError, sendJson } from '../_lib/gas.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
