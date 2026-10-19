@@ -4,11 +4,11 @@ Tanggal: 15 Okt 2026. Lingkungan: Node v24, npm 11, Vite build lokal.
 Integrasi Google Sheets: **BELUM TERVERIFIKASI** (belum ada URL Apps Script /
 Sheet nyata / env). Tidak ada hasil yang dikarang.
 
-**Pembaruan 19 Okt 2026** — lapisan Apps Script **TERVERIFIKASI** untuk baca &
-validasi (lihat §H): `doGet` sehat, `doPost` terpanggil, `ping` + `getProducts`
-(8 produk) + penolakan validasi berhasil lewat kode produksi `api/_lib/gas.js`.
-**Masih belum terverifikasi**: alur tulis penuh (register + checkout nyata yang
-mengubah Sheets) dan alur end-to-end lewat Vercel (belum ada env/proyek Vercel).
+**Pembaruan 19 Okt 2026** — lapisan Apps Script **TERVERIFIKASI end-to-end**
+(lihat §H): `doGet` sehat, `doPost` terpanggil, dan seluruh alur tulis nyata
+(register → login → sesi → checkout → stok berkurang → riwayat → detail) berhasil
+lewat kode produksi `api/_lib/gas.js`. Data uji sudah dibersihkan via aksi
+`cleanupTestData`. **Belum**: alur end-to-end lewat Vercel (belum ada proyek/env Vercel).
 
 ## A. Build
 
@@ -108,12 +108,21 @@ benchmark dipakai sebagai konvensi UX, bukan tiruan visual.
 | Checkout | `POST /api/orders` (AB-T001/S ×1) | **201** `ORD-MVEWJYM6LC`, subtotal 129000 + ongkir 15000 = **144000** |
 | Riwayat + itemCount | `GET /api/orders` | **200**, `itemCount: 1` |
 | Detail pesanan + items | `GET /api/orders/:id` | **200**, `items` terisi (import yang dulu rusak kini jalan) |
-| Stok berkurang | `GET /api/products` | AB-T001/S **10 → 9**, `updatedAt` ikut berubah |
-| Alur end-to-end lewat browser/Vercel | — | **Belum** (belum ada env/proyek Vercel) |
+| Stok berkurang | `GET /api/products` | AB-T001/S **10 → 9**, `updatedAt` ikut berubah (**terverifikasi**) |
+| `phone` nol depan | checkout `phone: 081234567890` | **Gagal** saat format kolom masih otomatis (tersimpan `81234567890`); **diperbaiki di `Code.gs`** (`setNumberFormat('@')`) → tersimpan `"081234567890"` (**lulus**) |
+| Pembersihan data uji | aksi `cleanupTestData` | **Lulus** — hapus 1 user, 4 sesi, 3 order, 3 item; stok dikembalikan (`AB-T001/S`=10, `AB-T002/M`=10); sisa user `null`, sisa order 0 |
+| Alur end-to-end lewat browser/Vercel | — | **Belum** (belum ada proyek/env Vercel) |
 
-Catatan data: pada uji checkout, `phone` `081234567890` kembali sebagai angka
-`81234567890` (nol depan hilang) karena kolom `Orders.phone` belum berformat
-Plain text — lihat `PANDUAN-SPREADSHEET.md` §3. Bukan bug kode, murni format sel.
+Catatan data: `phone` `081234567890` sempat kembali sebagai angka `81234567890`
+(nol depan hilang). Mengubah format kolom jadi Plain text **tidak cukup** —
+nilai `appendRow` tetap diparse Sheets. Diperbaiki di `Code.gs`
+(`createOrderAtomic` memaksa sel phone `setNumberFormat('@')`), lalu terbukti
+kembali sebagai string `"081234567890"`.
+
+Aksi pemeliharaan `cleanupTestData` (wajib `confirm: 'HAPUS-DATA-UJI'`) dipakai
+untuk menghapus data uji & mengembalikan stok demo; berguna untuk reset sebelum
+demo/presentasi. Bila tidak diperlukan lagi, aksi & helper `deleteRowsBy` dapat
+dihapus dari `Code.gs`.
 
 Catatan: seluruh uji di atas memakai `api/_lib/gas.js` versi produksi (bukan
 mock), sehingga sekaligus membuktikan penanganan redirect 302 yang baru.
