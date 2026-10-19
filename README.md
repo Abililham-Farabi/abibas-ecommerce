@@ -94,12 +94,19 @@ VITE_DATA_MODE=sheets
 
 ## Deploy ke Vercel
 
-1. Push project ke GitHub.
-2. Vercel → New Project → import repo → framework otomatis (Vite).
-3. Tambahkan 3 env di atas (Production + Preview).
+1. Push project ke GitHub (repo sudah: `Abililham-Farabi/abibas-ecommerce`).
+2. Vercel → New Project → import repo → framework otomatis (Vite);
+   build `npm run build`, output `dist`.
+3. Tambahkan 3 env (pilih **Production** dan **Preview**):
+   `APPS_SCRIPT_URL`, `APPS_SCRIPT_SHARED_SECRET`, `VITE_DATA_MODE=sheets`.
+   Nilainya **jangan** ber-prefix `VITE_` kecuali `VITE_DATA_MODE`.
 4. Deploy. Frontend + `/api/*` ter-host dalam satu domain.
-5. Uji: buka `/katalog` — produk harus termuat dari Sheets (bukan data demo),
-   register → login → checkout → riwayat.
+5. Uji: `https://<project>.vercel.app/api/products` harus balas JSON 8 produk;
+   buka `/katalog` (produk dari Sheets, bukan data demo) → register → login →
+   checkout → riwayat.
+
+> `VITE_DATA_MODE` **dibundel saat build**. Mengubah/menambah env setelah deploy
+> wajib diikuti **Redeploy**, jika tidak aplikasi tetap jalan di mode `demo`.
 
 ## Cara menguji
 
