@@ -159,3 +159,37 @@ pesan asli, 500 → "Terjadi kesalahan server." · `npm run lint` dan
 1. Ikuti `PANDUAN-SPREADSHEET.md` → tempel `Code.gs` → set `SHARED_SECRET` → deploy → isi env Vercel.
 2. Jalankan ulang: register → login → checkout 2 akun bersamaan (uji race) → cek stok Sheets → buka order silang (harus 404).
 3. Perbarui file ini: ganti status "menunggu verifikasi" menjadi hasil nyata.
+
+## I. Verifikasi produksi Vercel (19 Okt 2026)
+
+Target: <https://abibas-ecommerce.vercel.app> (deployment produksi, `VITE_DATA_MODE=sheets`).
+Metode: `curl` + cookie jar terhadap API live, lalu `cleanupTestData` via `api/_lib/gas.js` produksi.
+
+### Uji baca
+
+| Uji | Hasil |
+| --- | --- |
+| `GET /api/products` | 200, 8 produk dari Sheets (`AB-T001…AB-H002`) |
+| `GET /api/orders`, `/api/me` tanpa sesi | 401 `{"error":"Sesi tidak ditemukan. Silakan masuk."}` |
+| `GET /api/orders/ORD-NGAWUR` | 401 (auth dicek sebelum ID; bukan 500) |
+| `GET /`, `/katalog`, `/produk/AB-T001` | 200 HTML (rewrite SPA jalan) |
+| `GET /api/tidak-ada` | 404 (tidak dibajak fallback SPA) |
+| `POST /api/login` body `{}` | 400 JSON rapi (bukan 502 HTML) |
+| Bundle `index-*.js` | `function $n(){return!1}` → `isDemoMode()===false`, mode `sheets` aktif |
+| `Set-Cookie` | `abibas_session=…; HttpOnly; SameSite=Lax; Secure; Max-Age=604800` |
+
+### Uji tulis E2E (20/20 lolos)
+
+register 201 → register duplikat 409 → login sandi salah 401 → login benar 200 →
+`/api/me` 200 → checkout `AB-T001/S`×1 201 (`ORD-MVEYJEWUDX`, total 144000 =
+129000 + ongkir 15000) → `GET /api/orders` 200 (`itemCount:1`) →
+`GET /api/orders/:id` 200 (item terisi, `phone` tetap teks `"081234567890"`) →
+stok `AB-T001/S` 10→9 → logout 200 → `/api/me` 401.
+
+### Pembersihan & verifikasi akhir
+
+`cleanupTestData` menghapus **1 user, 2 sesi, 1 order, 1 orderItem**, mereset
+`AB-T001/S=10` (`updatedAt` → `2026-10-15T00:00:00.000Z`). Setelah itu: stok
+`AB-T001/S=10`, sesi lama 401, login akun yang sudah dihapus 401 — spreadsheet
+kembali bersih.
+

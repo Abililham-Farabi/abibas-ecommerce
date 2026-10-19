@@ -105,6 +105,11 @@ VITE_DATA_MODE=sheets
    buka `/katalog` (produk dari Sheets, bukan data demo) → register → login →
    checkout → riwayat.
 
+> **Produksi (sudah ter-deploy):** <https://abibas-ecommerce.vercel.app>
+> Terverifikasi 19 Okt 2026 — `/api/products` 200 (8 produk dari Sheets),
+> alur register → login → checkout → riwayat lolos, sesi & akses silang ditolak
+> 401. Rincian: `LAPORAN-PENGUJIAN.md` §I.
+
 > `VITE_DATA_MODE` **dibundel saat build**. Mengubah/menambah env setelah deploy
 > wajib diikuti **Redeploy**, jika tidak aplikasi tetap jalan di mode `demo`.
 
