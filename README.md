@@ -2,8 +2,8 @@
 
 Brand pakaian kasual milik sendiri, dibangun dari PDF
 `VPC Abibas Digital Business real.pdf` (tugas kuliah Digital Business).
-Proposisi nilai: pembeli bisa **memilih ukuran dengan yakin, tahu total biaya
-sebelum membayar, dan memantau pesanannya sampai tiba**.
+Proposisi nilai: pembeli bisa **tahu total biaya sebelum membayar, dan memantau
+pesanannya sampai tiba** (lacak pesanan bertahap).
 
 > **DEMO AKADEMIK, PEMBAYARAN TIDAK MEMPROSES UANG NYATA.**
 > Seluruh produk, stok, akun demo, ongkir, dan status pesanan adalah simulasi.
@@ -23,13 +23,13 @@ Frontend tidak pernah memanggil Apps Script langsung.
 
 ```
 src/pages        Home, Catalog, ProductDetail, Cart, Login, Register,
-                 Checkout, OrderDetail, Orders, SizeGuide, NotFound
-src/components   Navbar, Footer, ProductCard, SizeTable (+SizeGuideTable/Steps),
-                 ProtectedRoute, CostSummary, ui.jsx (Button/Field/Modal/Stepper)
+                 Checkout, OrderDetail, Orders, NotFound
+src/components   Navbar, Footer, ProductCard, ProtectedRoute, CostSummary,
+                 ui.jsx (Alert/Chip/Status/OrderTimeline/Stepper)
 src/context      CartContext, AuthContext
 src/api          client.js (satu-satunya pemanggil /api/*)
-src/data         products.demo.js, sizeGuide.js, couriers.js
-src/utils        format.js, validate.js
+src/data         products.demo.js, couriers.js
+src/utils        format.js (format + status/lacak pesanan), validate.js
 api              products, register, login, logout, me,
                  orders/index, orders/[id], _lib/gas.js
 apps-script      Code.gs (ditempel ke editor Apps Script)
@@ -123,6 +123,9 @@ VITE_DATA_MODE=sheets
   berkurang di Sheets tab Products.
 - **Riwayat**: `/pesanan` hanya milik akun login; buka ID pesanan orang lain
   manual → harus 404, bukan bocor.
+- **Lacak pesanan**: `/pesanan` → tile Belum Bayar/Dikemas/Dikirim/Selesai jadi
+  filter + badge jumlah → buka pesanan → majukan tahap via tombol simulasi →
+  timeline bertambah dan kolom `paidAt`…`doneAt` terisi di tab `Orders`.
 - **Mode Demo Lokal**: set `VITE_DATA_MODE=demo` → tanpa panggilan `/api/*`,
   akun & pesanan hanya di localStorage, tidak menyentuh Sheets. Tidak ada
   badge khusus mode; bedakan lewat env build / tab Network.
@@ -138,7 +141,7 @@ nyata. Detail: `ASUMSI-KETERBATASAN.md`.
 
 - Selesai: seluruh halaman §5 dengan tampilan storefront (foto referensi gaya
   lokal, katalog 4 kolom + sorting + breadcrumb + drawer filter mobile,
-  detail 2 kolom + modal ukuran + feedback tambah-keranjang, seksi kampanye
+  detail 2 kolom + pemilih ukuran + feedback tambah-keranjang, seksi kampanye
   sekunder, utility bar header, checkout 2 kolom),
   auth cookie HttpOnly + scrypt, validasi & hitung ulang backend, snapshot item,
   kepemilikan pesanan, tema terang editorial, responsif,
@@ -148,3 +151,5 @@ nyata. Detail: `ASUMSI-KETERBATASAN.md`.
   VPC ↔ fitur tetap didokumentasikan di `ASUMSI-KETERBATASAN.md`.
 - Integrasi Sheets (baca + tulis end-to-end via GAS) **sudah terverifikasi** di
   produksi Vercel — lihat `LAPORAN-PENGUJIAN.md` §H–§I untuk status jujur per item.
+- Halaman **Panduan ukuran** dan strip "Info belanja" dihapus (19 Okt 2026) demi
+  tampilan lebih bersih; `/panduan-ukuran` dialihkan ke `/katalog`.

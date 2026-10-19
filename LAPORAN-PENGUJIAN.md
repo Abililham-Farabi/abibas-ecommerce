@@ -263,3 +263,32 @@ login akun uji 401, `/api/orders` tanpa sesi 401.
   no. resi (`ABI…`) juga hanya tampilan.
 - Kolom `paidAt`…`doneAt` harus ditambah manual di Sheet bila riwayat waktu per
   tahap diinginkan.
+## K. Penyederhanaan tampilan (19 Okt 2026)
+
+Keputusan produk dari pemilik: **hapus Panduan ukuran** (halaman + semua tautan)
+dan **strip "Info belanja"** di beranda, serta **kolom "Kebijakan" di footer** —
+alasannya kontennya berulang dan tabel ukurannya ilustratif sehingga lebih
+menambah keraguan daripada kepercayaan. Tampilan jadi lebih bersih dan footer
+menyusut dari 4 kolom ke 3 (brand · Belanja · Bantuan).
+
+Yang dihapus/diubah:
+
+| Berkas | Perubahan |
+| --- | --- |
+| `src/pages/SizeGuide.jsx`, `src/components/SizeTable.jsx`, `src/data/sizeGuide.js` | file dihapus |
+| `src/App.jsx` | rute `/panduan-ukuran` → `<Navigate to="/katalog" replace />` |
+| `src/components/Navbar.jsx` | tautan "Panduan Ukuran" (utility bar + menu mobile) dihapus |
+| `src/pages/Home.jsx` | CTA hero "Cek ukuran" dihapus, klaim "panduan ukuran yang jelas" dibuang, seksi "Info belanja" dihapus |
+| `src/pages/ProductDetail.jsx` | tombol + modal "Panduan ukuran (cm)" dihapus (pemilih ukuran tetap) |
+| `src/components/Footer.jsx` | item "Panduan ukuran" & kolom "Kebijakan" dihapus, `lg:grid-cols-4` → `-3` |
+| `ASUMSI-KETERBATASAN.md` | asumsi "Tabel ukuran ilustratif" dihapus + renumber |
+
+Halaman **Panduan ukuran tetap tercatat di §A–§G sebagai riwayat** pengujian
+sebelum penghapusan.
+
+Verifikasi: `npm run lint` (5 peringatan lama, tidak ada baru) dan `npm run
+build` lolos; `grep` memastikan **nol** sisa rujukan `SizeTable`, `sizeGuide`,
+`guideOpen`, atau teks "Cara mengukur" (satu-satunya sisa string
+`panduan-ukuran` adalah rute redirect). Bundle produksi `index-BsOmGqeV.js`
+tidak lagi memuat "Cara mengukur"/"Panduan ukuran"/"Lebar". URL lama tetap balas
+HTML 200 lalu dialihkan ke `/katalog` di sisi klien.

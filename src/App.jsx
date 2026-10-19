@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -13,7 +13,6 @@ import Register from './pages/Register';
 import Checkout from './pages/Checkout';
 import Orders from './pages/Orders';
 import OrderDetail from './pages/OrderDetail';
-import SizeGuide from './pages/SizeGuide';
 import NotFound from './pages/NotFound';
 
 export default function App() {
@@ -31,7 +30,7 @@ export default function App() {
                 <Route path="/keranjang" element={<Cart />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/panduan-ukuran" element={<SizeGuide />} />
+                <Route path="/panduan-ukuran" element={<Navigate to="/katalog" replace />} />
                 <Route
                   path="/checkout"
                   element={

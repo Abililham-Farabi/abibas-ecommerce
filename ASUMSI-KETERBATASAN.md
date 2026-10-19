@@ -4,15 +4,17 @@
 
 1. **Produk & stok demo.** 8 produk dan semua stok adalah data demonstrasi,
    struktur disamakan antara `src/data/products.demo.js`, `Code.gs`, dan Sheets.
-2. **Tabel ukuran ilustratif.** Nilai cm (S 48×68 … XL 54×74) berlabel contoh;
-   bukan spesifikasi aktual dan tidak menjamin kecocokan.
-3. **Kebijakan penukaran demo.** Isi mengikuti PDF (gratis 1× / 7 hari / label
+2. **Kebijakan penukaran demo.** Isi mengikuti PDF (gratis 1× / 7 hari / label
    utuh); memerlukan konfirmasi pemilik sebelum dipakai komersial.
-4. **Ongkir simulasi.** Reguler 15rb, Ekspres 28rb, Hemat 10rb — bukan API kurir.
-5. **Pembayaran simulasi.** Transfer/QRIS/e-wallet tidak memproses uang nyata.
-6. **Gambar ilustrasi.** Placeholder SVG lokal berlabel demo, bukan foto aktual.
-7. **Customer Profile = hipotesis.** Segmen & prioritas pain/gain adalah penilaian
+3. **Ongkir simulasi.** Reguler 15rb, Ekspres 28rb, Hemat 10rb — bukan API kurir.
+4. **Pembayaran simulasi.** Transfer/QRIS/e-wallet tidak memproses uang nyata.
+5. **Gambar ilustrasi.** Placeholder SVG lokal berlabel demo, bukan foto aktual.
+6. **Customer Profile = hipotesis.** Segmen & prioritas pain/gain adalah penilaian
    pemilik brand di PDF, bukan hasil survei — belum tervalidasi.
+
+> **Panduan ukuran (tabel cm / cara mengukur) sengaja dihapus** (19 Okt 2026):
+> nilai tabelnya ilustratif sehingga berisiko menyesatkan. URL lama
+> `/panduan-ukuran` kini dialihkan ke `/katalog`.
 
 ## Keterbatasan teknis
 

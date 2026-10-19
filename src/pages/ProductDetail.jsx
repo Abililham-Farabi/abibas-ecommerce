@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import SizeTable from '../components/SizeTable';
-import { Alert, Modal, QtyStepper } from '../components/ui';
+import { Alert, QtyStepper } from '../components/ui';
 import { api } from '../api/client';
 import { useCart } from '../context/CartContext';
 import { DEMO_PRODUCTS, SIZES, stockOf } from '../data/products.demo';
@@ -19,7 +18,6 @@ export default function ProductDetail() {
   const [notice, setNotice] = useState('');
   const [added, setAdded] = useState(false);
   const [error, setError] = useState('');
-  const [guideOpen, setGuideOpen] = useState(false);
 
   useEffect(() => {
     setProduct(DEMO_PRODUCTS.find((p) => p.productId === id));
@@ -104,15 +102,8 @@ export default function ProductDetail() {
           <p className="mt-3 text-2xl font-bold">{formatRupiah(product.price)}</p>
           <p className="mt-4 text-sm leading-relaxed text-ink-600">{product.description}</p>
 
-          <div className="mt-6 flex items-center justify-between">
+          <div className="mt-6">
             <p className="text-sm font-semibold">Ukuran</p>
-            <button
-              type="button"
-              onClick={() => setGuideOpen(true)}
-              className="text-sm text-ink-500 underline underline-offset-4 hover:text-ink-900"
-            >
-              Panduan ukuran
-            </button>
           </div>
           <div className="mt-3 flex gap-2" role="radiogroup" aria-label="Pilih ukuran">
             {SIZES.map((s) => {
@@ -173,15 +164,6 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
-
-      {guideOpen && (
-        <Modal title="Panduan ukuran (cm)" onClose={() => setGuideOpen(false)}>
-          <SizeTable />
-          <Link to="/panduan-ukuran" className="link-underline mt-4 inline-block text-sm">
-            Buka halaman panduan lengkap →
-          </Link>
-        </Modal>
-      )}
     </div>
   );
 }

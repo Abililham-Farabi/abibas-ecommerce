@@ -32,7 +32,6 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 border-b border-ink-200/70 bg-[#fafaf8]/95 backdrop-blur">
       <div className="hidden border-b border-ink-200/60 md:block">
         <nav className="container-store flex items-center justify-end gap-5 py-1.5 text-xs text-ink-500" aria-label="Bantuan">
-          <Link to="/panduan-ukuran" className="hover:text-ink-900">Panduan Ukuran</Link>
           <Link to="/pesanan" className="hover:text-ink-900">Lacak Pesanan</Link>
         </nav>
       </div>
@@ -144,9 +143,6 @@ export default function Navbar() {
                 {c.label}
               </Link>
             ))}
-            <Link to="/panduan-ukuran" onClick={() => setOpen(false)} className="rounded-lg px-2 py-2.5 text-sm hover:bg-ink-100">
-              Panduan Ukuran
-            </Link>
             {user ? (
               <>
                 <Link to="/pesanan" onClick={() => setOpen(false)} className="rounded-lg px-2 py-2.5 text-sm hover:bg-ink-100">

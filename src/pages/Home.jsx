@@ -42,8 +42,7 @@ export default function Home() {
               Santai, rapi, pas di badan.
             </h1>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-white/70">
-              Kaos oversize, kemeja kasual, dan hoodie mulai Rp129 ribu —
-              dengan panduan ukuran yang jelas.
+              Kaos oversize, kemeja kasual, dan hoodie mulai Rp129 ribu.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
@@ -51,12 +50,6 @@ export default function Home() {
                 className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-ink-900 hover:bg-ink-100"
               >
                 Belanja sekarang
-              </Link>
-              <Link
-                to="/panduan-ukuran"
-                className="rounded-full border border-white/30 px-6 py-3 text-sm font-semibold hover:border-white"
-              >
-                Cek ukuran
               </Link>
             </div>
           </div>
@@ -181,25 +174,6 @@ export default function Home() {
               className="h-64 w-full object-cover md:h-full md:min-h-[320px]"
             />
           </div>
-        </div>
-      </section>
-
-      {/* Info belanja */}
-      <section className="container-store mt-14">
-        <div className="grid gap-px overflow-hidden rounded-2xl border border-ink-200/70 bg-ink-200/70 sm:grid-cols-3">
-          {[
-            { t: 'Panduan ukuran jelas', d: 'Tabel lebar × panjang dalam cm di setiap produk.', to: '/panduan-ukuran', cta: 'Lihat panduan' },
-            { t: 'Tukar ukuran mudah', d: 'Gratis 1 kali dalam 7 hari, label masih utuh.', to: '/panduan-ukuran', cta: 'Syarat tukar' },
-            { t: 'Pesanan terpantau', d: 'Status pesanan bisa dicek kapan saja setelah masuk.', to: '/pesanan', cta: 'Pesanan saya' },
-          ].map((f) => (
-            <div key={f.t} className="bg-white p-6">
-              <p className="font-semibold">{f.t}</p>
-              <p className="mt-1 text-sm text-ink-500">{f.d}</p>
-              <Link to={f.to} className="link-underline mt-3 inline-block text-sm">
-                {f.cta} →
-              </Link>
-            </div>
-          ))}
         </div>
       </section>
     </div>
