@@ -193,3 +193,73 @@ stok `AB-T001/S` 10→9 → logout 200 → `/api/me` 401.
 `AB-T001/S=10`, sesi lama 401, login akun yang sudah dihapus 401 — spreadsheet
 kembali bersih.
 
+## J. Fitur lacak pesanan + perbaikan daftar kosong (19 Okt 2026)
+
+### Diagnosis "Pesanan saya kosong padahal checkout berhasil"
+
+Diuji dengan akun + pesanan uji baru di produksi: `GET /api/orders` mengembalikan
+**1 pesanan** dan `userId`-nya **identik** dengan sesi (`/api/me`). Jadi lapisan
+server (Vercel → GAS → Sheets) benar; penyebabnya ada di sisi klien:
+
+1. respons `/api/*` tidak mengirim `Cache-Control: no-store` (hanya
+   `public, max-age=0, must-revalidate`), sehingga halaman bisa disajikan dari
+   cache perantara;
+2. `Orders.jsx` hanya memuat data sekali saat mount — bila Safari memulihkan
+   halaman dari **bfcache** (tombol back), JS tidak dijalankan ulang dan daftar
+   lama (kosong) tetap tampil tanpa satu pun request.
+
+**Perbaikan:** semua respons `/api/*` kini `Cache-Control: no-store, max-age=0`
+(sekaligus menutup cache data pesanan/pemilik), dan `/pesanan` memuat ulang saat
+halaman kembali aktif (`pageshow` + `visibilitychange`) plus tombol "Muat ulang".
+
+### Status pesanan kini bergerak (persisten)
+
+Sebelumnya `orderStatus` selamanya `menunggu_pembayaran_simulasi` — label
+`diproses/dikirim/selesai` ada di `ui.jsx` tapi tidak pernah ditulis kode mana pun.
+
+- `Code.gs`: aksi baru `updateOrderStatus` — wajib pemilik, naik **satu tahap**
+  per panggilan (`menunggu_pembayaran_simulasi → pembayaran_simulasi_dikonfirmasi
+  → diproses → dikirim → selesai`), idempoten, menulis `orderStatus`, `updatedAt`,
+  `paymentStatus` (tahap pertama), dan cap waktu tahap `paidAt`/`packedAt`/
+  `shippedAt`/`doneAt`. Kolom cap waktu bersifat **opsional**: bila header belum
+  ada, tahapan tetap jalan tanpa riwayat waktu.
+- `api/orders/[id].js`: `POST { status }` (whitelist di Vercel + validasi ulang di GAS).
+- UI: `/pesanan` jadi pusat lacak (tile **Belum Bayar · Dikemas · Dikirim ·
+  Selesai** + badge jumlah sebagai filter, kartu pesanan, "Lihat riwayat
+  lengkap"); `/pesanan/:id` menampilkan **timeline tahapan** + tombol simulasi.
+  Gaya monokrom Abibas (bukan oranye Shopee); label/warna dari satu sumber di
+  `src/utils/format.js`.
+
+Deployment Apps Script: **Versi 10 (19 Okt 2026 15.38)**; 4 header kolom `O1:R1`
+ditambahkan di tab `Orders` (`paidAt | packedAt | shippedAt | doneAt`).
+
+### Uji lokal (harness Node + Spreadsheet tiruan, `Code.gs` apa adanya)
+
+14/14 lolos: lompat tahap → 409 · bukan pemilik → 404 · status ngawur → 400 ·
+alur penuh 4 tahap + cap waktu + `paymentStatus` · idempoten · degradasi mulus
+tanpa kolom cap waktu · `getOrdersByUser` tetap benar (`itemCount`).
+
+### Uji produksi (setelah deploy)
+
+| Uji | Hasil |
+| --- | --- |
+| `Cache-Control` pada `/api/*` | `no-store, max-age=0` |
+| register → checkout `AB-T002/M` | 201 → 201 (`ORD-MVF0F7M89X`) |
+| `GET /api/orders` | 200, **berisi 1 pesanan** (orderId cocok) |
+| status awal | `menunggu_pembayaran_simulasi` (order & payment) |
+| `POST` lompat tahap / status ngawur / pesanan orang lain | 409 / 400 / 404 |
+| `POST` bertahap 4× | 200 semua, `orderStatus` naik tepat satu langkah |
+| `paymentStatus` | ikut jadi `pembayaran_simulasi_dikonfirmasi` |
+| `paidAt, packedAt, shippedAt, doneAt` | terisi berurutan (`…:30.050Z → :35.269Z → :40.379Z → :45.761Z`) |
+
+**Pembersihan:** terarah (email + orderId uji saja) → 1 user, 1 sesi, 1 order,
+1 orderItem terhapus, `AB-T002/M` kembali 10. Pesanan asli pemilik di tab `Orders`
+tidak tersentuh (uji tulis ke order itu balas 404). Verifikasi akhir: stok 10,
+login akun uji 401, `/api/orders` tanpa sesi 401.
+
+### Keterbatasan yang jujur
+
+- Tahapan masih **manual (tombol simulasi)**, bukan alur pembayaran/kurir nyata;
+  no. resi (`ABI…`) juga hanya tampilan.
+- Kolom `paidAt`…`doneAt` harus ditambah manual di Sheet bila riwayat waktu per
+  tahap diinginkan.
