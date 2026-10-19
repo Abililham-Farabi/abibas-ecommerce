@@ -43,4 +43,16 @@ body {
   .link-underline {
     @apply font-medium underline decoration-ink-300 underline-offset-4 hover:decoration-ink-900;
   }
+  .chip {
+    @apply inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide;
+  }
+  .chip-warn {
+    @apply border-clay-300 bg-clay-50 text-clay-600;
+  }
+  .chip-ink {
+    @apply border-ink-200 bg-ink-50 text-ink-700;
+  }
+  .chip-muted {
+    @apply border-ink-200 bg-white text-ink-400;
+  }
 }

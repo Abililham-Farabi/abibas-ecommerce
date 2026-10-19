@@ -69,6 +69,9 @@ export async function callGas(action, payload = {}) {
 
 export function sendJson(res, status, obj) {
   res.status(status).setHeader('Content-Type', 'application/json');
+  // Data di balik /api/* bergantung sesi (pesanan, profil) — jangan pernah
+  // disimpan di cache browser/CDN, dan jangan dipulihkan basi oleh bfcache.
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
   res.end(JSON.stringify(obj));
 }
 

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
+import { ORDER_FLOW, ORDER_STEPS, formatDate, orderStatusMeta } from '../utils/format';
 
-// Komponen UI bersama: tombol, field, modal, stepper, status.
+// Komponen UI bersama: tombol, field, modal, stepper, status, lacak pesanan.
 
 export function FieldError({ message }) {
   if (!message) return null;
@@ -92,29 +93,105 @@ export function Modal({ title, onClose, children }) {
   );
 }
 
-const DOT = {
-  menunggu_pembayaran_simulasi: 'bg-amber-500',
-  pembayaran_simulasi_dikonfirmasi: 'bg-sky-600',
-  diproses: 'bg-violet-600',
-  dikirim: 'bg-blue-600',
-  selesai: 'bg-emerald-600',
-  dibatalkan: 'bg-red-500',
+// Ikon monokrom untuk tile status & lacak pesanan.
+const ICON_PATHS = {
+  semua: ['M4 6.5h16', 'M4 12h16', 'M4 17.5h16'],
+  belum_bayar: [
+    'M3.75 8.5A2.25 2.25 0 0 1 6 6.25h11',
+    'M3.75 8.5v8.75A2.25 2.25 0 0 0 6 19.5h12.25a2.25 2.25 0 0 0 2.25-2.25V8.5z',
+    'M15.75 13.5h2.25',
+  ],
+  dikemas: [
+    'M3.75 8.25 12 4.5l8.25 3.75v7.5L12 19.5 3.75 15.75z',
+    'M3.75 8.25 12 12l8.25-3.75',
+    'M12 12v7.5',
+  ],
+  dikirim: [
+    'M3 7.5h9.75v8.25H3z',
+    'M12.75 10.5h3.5L20.25 14v1.75h-7.5z',
+    'M7 18.75a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z',
+    'M16.5 18.75a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z',
+  ],
+  selesai: ['M20.25 12a8.25 8.25 0 1 1-16.5 0 8.25 8.25 0 0 1 16.5 0Z', 'm8.5 12.25 2.5 2.5 4.5-5'],
 };
 
-const LABEL = {
-  menunggu_pembayaran_simulasi: 'Menunggu pembayaran',
-  pembayaran_simulasi_dikonfirmasi: 'Pembayaran dikonfirmasi',
-  diproses: 'Diproses',
-  dikirim: 'Dikirim',
-  selesai: 'Selesai',
-  dibatalkan: 'Dibatalkan',
-};
+export function StatusIcon({ name, className = 'h-6 w-6' }) {
+  const paths = ICON_PATHS[name] || ICON_PATHS.semua;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      {paths.map((d) => (
+        <path key={d} d={d} />
+      ))}
+    </svg>
+  );
+}
 
 export function OrderStatus({ status, suffix = '' }) {
+  const meta = orderStatusMeta(status);
   return (
     <span className="inline-flex items-center gap-1.5 text-xs font-medium text-ink-600">
-      <span className={`h-2 w-2 rounded-full ${DOT[status] || 'bg-ink-300'}`} aria-hidden="true" />
-      {(LABEL[status] || status) + suffix}
+      <span className={`h-2 w-2 rounded-full ${meta.dot}`} aria-hidden="true" />
+      {meta.label + suffix}
     </span>
+  );
+}
+
+export function StatusChip({ status, suffix = '' }) {
+  const meta = orderStatusMeta(status);
+  return <span className={`chip ${meta.chip}`}>{meta.label + suffix}</span>;
+}
+
+/**
+ * Timeline lacak pesanan: tahap yang sudah lewat ditandai penuh, tahap aktif
+ * disorot dengan aksen clay, tahap berikutnya masih abu-abu.
+ */
+export function OrderTimeline({ order }) {
+  const currentIdx = ORDER_FLOW.indexOf(order?.orderStatus);
+  return (
+    <ol className="mt-4">
+      {ORDER_STEPS.map((step, i) => {
+        const done = currentIdx >= 0 && i < currentIdx;
+        const current = i === currentIdx;
+        const at = order?.[step.at];
+        const last = i === ORDER_STEPS.length - 1;
+        return (
+          <li key={step.status} className="relative flex gap-3.5 pb-5 last:pb-0">
+            {!last && (
+              <span
+                className={`absolute left-[9px] top-5 h-full w-px ${done ? 'bg-ink-900' : 'bg-ink-200'}`}
+                aria-hidden="true"
+              />
+            )}
+            <span
+              className={`relative z-10 mt-0.5 h-[19px] w-[19px] shrink-0 rounded-full border-2 bg-white ${
+                current ? 'border-clay-500' : done ? 'border-ink-900' : 'border-ink-200'
+              }`}
+              aria-hidden="true"
+            >
+              {done && <span className="absolute inset-[3px] rounded-full bg-ink-900" />}
+              {current && <span className="absolute inset-[3px] rounded-full bg-clay-500" />}
+            </span>
+            <div className="min-w-0">
+              <p className={`text-sm ${current ? 'font-bold' : done ? 'font-medium text-ink-700' : 'text-ink-400'}`}>
+                {step.title}
+              </p>
+              <p className="mt-0.5 text-xs text-ink-400">
+                {at ? formatDate(at) : current ? 'Sedang berjalan' : 'Menunggu'}
+              </p>
+              <p className="mt-0.5 text-xs text-ink-500">{step.note}</p>
+            </div>
+          </li>
+        );
+      })}
+    </ol>
   );
 }

@@ -141,8 +141,10 @@ nyata. Detail: `ASUMSI-KETERBATASAN.md`.
   detail 2 kolom + modal ukuran + feedback tambah-keranjang, seksi kampanye
   sekunder, utility bar header, checkout 2 kolom),
   auth cookie HttpOnly + scrypt, validasi & hitung ulang backend, snapshot item,
-  kepemilikan pesanan, tema terang editorial, responsif.
+  kepemilikan pesanan, tema terang editorial, responsif,
+  **lacak pesanan** (tile status Belum Bayar/Dikemas/Dikirim/Selesai + timeline
+  tahapan dan tombol simulasi yang tersimpan di Sheets).
 - Kontrol presentasi VPC (Mode PVC, Canvas VPC) **dihapus dari toko**; pemetaan
   VPC ↔ fitur tetap didokumentasikan di `ASUMSI-KETERBATASAN.md`.
-- Belum teruji ke Sheet nyata (menunggu URL + env manual): baca/tulis end-to-end
-  via GAS. Lihat `LAPORAN-PENGUJIAN.md` untuk status jujur per item.
+- Integrasi Sheets (baca + tulis end-to-end via GAS) **sudah terverifikasi** di
+  produksi Vercel — lihat `LAPORAN-PENGUJIAN.md` §H–§I untuk status jujur per item.

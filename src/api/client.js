@@ -28,5 +28,7 @@ export const api = {
   me: () => request('/api/me'),
   getOrders: () => request('/api/orders'),
   getOrderDetail: (id) => request(`/api/orders/${encodeURIComponent(id)}`),
+  updateOrderStatus: (id, status) =>
+    request(`/api/orders/${encodeURIComponent(id)}`, { method: 'POST', body: { status } }),
   createOrder: (payload) => request('/api/orders', { method: 'POST', body: payload }),
 };

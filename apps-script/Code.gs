@@ -119,6 +119,8 @@ function route(action, p) {
       return { orders: getOrdersByUser(p.userId) };
     case 'getOrderWithItems':
       return { order: getOrderWithItems(p.orderId, p.userId) };
+    case 'updateOrderStatus':
+      return { order: updateOrderStatus(p) };
     case 'createOrderAtomic':
       return { order: createOrderAtomic(p) };
     case 'cleanupTestData':
@@ -268,6 +270,10 @@ function getOrdersByUser(userId) {
         paymentStatus: o.paymentStatus,
         orderStatus: o.orderStatus,
         itemCount: itemCount[String(o.orderId)] || 0,
+        paidAt: o.paidAt || '',
+        packedAt: o.packedAt || '',
+        shippedAt: o.shippedAt || '',
+        doneAt: o.doneAt || '',
         createdAt: o.createdAt,
         updatedAt: o.updatedAt,
       });
@@ -317,10 +323,94 @@ function getOrderWithItems(orderId, userId) {
     paymentMethod: order.paymentMethod,
     paymentStatus: order.paymentStatus,
     orderStatus: order.orderStatus,
+    paidAt: order.paidAt || '',
+    packedAt: order.packedAt || '',
+    shippedAt: order.shippedAt || '',
+    doneAt: order.doneAt || '',
     createdAt: order.createdAt,
     updatedAt: order.updatedAt,
     items: items,
   };
+}
+
+/* ---------- lacak pesanan (simulasi) ---------- */
+
+var ORDER_FLOW = [
+  'menunggu_pembayaran_simulasi',
+  'pembayaran_simulasi_dikonfirmasi',
+  'diproses',
+  'dikirim',
+  'selesai',
+];
+
+// Cap waktu per tahap. Kolom ini opsional: bila headernya belum ada di tab
+// Orders, tahap tetap maju — hanya riwayat waktunya yang tidak tercatat.
+var ORDER_STAGE_COL = {
+  pembayaran_simulasi_dikonfirmasi: 'paidAt',
+  diproses: 'packedAt',
+  dikirim: 'shippedAt',
+  selesai: 'doneAt',
+};
+
+function setOrderColumn(sh, header, rowIndex, name, value, required) {
+  var col = header.indexOf(name);
+  if (col < 0) {
+    if (required) fail('Kolom "' + name + '" tidak ada di tab Orders.', 500);
+    return false;
+  }
+  sh.getRange(rowIndex, col + 1).setValue(value);
+  return true;
+}
+
+/**
+ * Majukan status pesanan satu tahap (simulasi demo). Wajib pemilik pesanan.
+ * Transisi hanya boleh naik satu langkah agar tidak ada lompatan status.
+ */
+function updateOrderStatus(p) {
+  var orderId = String(p.orderId || '');
+  var userId = String(p.userId || '');
+  var next = String(p.status || '');
+  if (!orderId) fail('orderId wajib diisi.', 400);
+  if (ORDER_FLOW.indexOf(next) < 0) fail('Status tidak valid.', 400);
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    var r = rows(SHEETS.Orders);
+    var rowIndex = -1;
+    var order = null;
+    for (var i = 0; i < r.data.length; i++) {
+      var o = toObj(r.header, r.data[i]);
+      if (String(o.orderId) === orderId) {
+        order = o;
+        rowIndex = i + 2;
+        break;
+      }
+    }
+    if (!order || String(order.userId) !== userId) fail('Pesanan tidak ditemukan.', 404);
+
+    var cur = String(order.orderStatus);
+    var curIdx = ORDER_FLOW.indexOf(cur);
+    var nextIdx = ORDER_FLOW.indexOf(next);
+    if (curIdx < 0) fail('Status pesanan tidak dikenali.', 409);
+    if (nextIdx === curIdx) return getOrderWithItems(orderId, userId);
+    if (nextIdx !== curIdx + 1) {
+      fail('Perubahan status tidak berurutan (sekarang: ' + cur + ').', 409);
+    }
+
+    var now = new Date().toISOString();
+    setOrderColumn(r.sh, r.header, rowIndex, 'orderStatus', next, true);
+    setOrderColumn(r.sh, r.header, rowIndex, 'updatedAt', now, true);
+    if (next === 'pembayaran_simulasi_dikonfirmasi') {
+      setOrderColumn(r.sh, r.header, rowIndex, 'paymentStatus', next, true);
+    }
+    var stageCol = ORDER_STAGE_COL[next];
+    if (stageCol) setOrderColumn(r.sh, r.header, rowIndex, stageCol, now, false);
+
+    return getOrderWithItems(orderId, userId);
+  } finally {
+    try { lock.releaseLock(); } catch (e) { /* abaikan */ }
+  }
 }
 
 /**
