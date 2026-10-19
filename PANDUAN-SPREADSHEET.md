@@ -51,6 +51,7 @@ Setelah header terisi: blok baris 1 → **View → Freeze → 1 row**, lalu bold
 | `price, shippingCost, subtotal, total, unitPrice` | **Format → Number → Number** (angka murni, mis. `129000`, tanpa `Rp`/titik) |
 | `stockS/M/L/XL, quantity` | **Number**, 0 desimal |
 | `createdAt, updatedAt, expiresAt, revokedAt` | **Plain text** (diisi string ISO oleh sistem, mis. `2026-10-15T00:00:00.000Z`) |
+| `phone` (tab `Orders`) | **Plain text** — agar angka `0` di depan & tanda `+` tidak hilang. Bila dibiarkan format Number, `081234567890` tersimpan jadi `81234567890` |
 | `email` | Plain text (keunikan dicek backend setelah lowercase+trim, bukan oleh Sheets) |
 
 ## 4. Data awal

@@ -4,10 +4,11 @@ Tanggal: 15 Okt 2026. Lingkungan: Node v24, npm 11, Vite build lokal.
 Integrasi Google Sheets: **BELUM TERVERIFIKASI** (belum ada URL Apps Script /
 Sheet nyata / env). Tidak ada hasil yang dikarang.
 
-**Pembaruan 19 Okt 2026** — lapisan Apps Script kini **terverifikasi sebagian**
-(lihat §H): URL live aktif, `doGet` sehat, `doPost` benar-benar terpanggil.
-**Masih belum terverifikasi**: aksi autentik (butuh nilai `SHARED_SECRET`) dan
-alur end-to-end lewat Vercel (belum ada env/proyek Vercel).
+**Pembaruan 19 Okt 2026** — lapisan Apps Script **TERVERIFIKASI** untuk baca &
+validasi (lihat §H): `doGet` sehat, `doPost` terpanggil, `ping` + `getProducts`
+(8 produk) + penolakan validasi berhasil lewat kode produksi `api/_lib/gas.js`.
+**Masih belum terverifikasi**: alur tulis penuh (register + checkout nyata yang
+mengubah Sheets) dan alur end-to-end lewat Vercel (belum ada env/proyek Vercel).
 
 ## A. Build
 
@@ -96,8 +97,26 @@ benchmark dipakai sebagai konvensi UX, bukan tiruan visual.
 | Health | `GET /exec` | 302 → echo, lalu **200** `{"ok":true,"service":"abibas-gas",…}` — script & spreadsheet aktif |
 | `doPost` benar-benar terpanggil | `POST {"action":"ping"}` (secret sengaja salah) | 302 → GET echo → **403** `{"ok":false,"error":"Akses ditolak."}` |
 | URL lama (`apps-script/catatan` sebelumnya) | `GET`/`POST` `/exec` lama | **404** — deployment mati; diganti **Versi 7** (19 Okt 2026 13.26) |
-| Aksi autentik (`ping`/`getProducts` + secret benar) | — | **Belum diuji** (nilai secret tidak tersedia di sesi ini) |
-| Alur end-to-end via Vercel | — | **Belum** (belum ada env/proyek Vercel) |
+| Aksi autentik (`ping` + secret benar) | `callGas('ping')` | **200** `{"now":"2026-10-19T06:55:33.817Z"}` — secret cocok, `doPost` terpanggil |
+| Baca sheet `Products` | `callGas('getProducts')` | **200**, **8 produk** (`AB-T001…AB-H002`), stok & harga sesuai sheet |
+| Validasi `createOrderAtomic` (tak menulis) | items kosong | **400** `Item pesanan tidak valid.` |
+| Validasi stok (tak menulis) | `AB-T001/S` qty 999 | **400** `Kuantitas tidak valid untuk Kaos Oversize Hitam Essential` |
+| Alur tulis penuh: register | `POST /api/register` | **201** — user dibuat (`usr-mvewjjsh-b6a4d456`), hash scrypt + sesi tersimpan |
+| Register email duplikat | ulang email sama | **409** `Email sudah terdaftar.` |
+| Login salah / benar | `POST /api/login` | **401** lalu **200** |
+| Sesi cookie | `GET /api/me` | **200**, user dari sesi |
+| Checkout | `POST /api/orders` (AB-T001/S ×1) | **201** `ORD-MVEWJYM6LC`, subtotal 129000 + ongkir 15000 = **144000** |
+| Riwayat + itemCount | `GET /api/orders` | **200**, `itemCount: 1` |
+| Detail pesanan + items | `GET /api/orders/:id` | **200**, `items` terisi (import yang dulu rusak kini jalan) |
+| Stok berkurang | `GET /api/products` | AB-T001/S **10 → 9**, `updatedAt` ikut berubah |
+| Alur end-to-end lewat browser/Vercel | — | **Belum** (belum ada env/proyek Vercel) |
+
+Catatan data: pada uji checkout, `phone` `081234567890` kembali sebagai angka
+`81234567890` (nol depan hilang) karena kolom `Orders.phone` belum berformat
+Plain text — lihat `PANDUAN-SPREADSHEET.md` §3. Bukan bug kode, murni format sel.
+
+Catatan: seluruh uji di atas memakai `api/_lib/gas.js` versi produksi (bukan
+mock), sehingga sekaligus membuktikan penanganan redirect 302 yang baru.
 
 ### Bug yang ditemukan & diperbaiki
 
