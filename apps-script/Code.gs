@@ -121,6 +121,8 @@ function route(action, p) {
       return { order: getOrderWithItems(p.orderId, p.userId) };
     case 'createOrderAtomic':
       return { order: createOrderAtomic(p) };
+    case 'cleanupTestData':
+      return cleanupTestData(p);
     default:
       fail('Aksi tidak dikenal: ' + action, 400);
   }
@@ -398,11 +400,16 @@ function createOrderAtomic(p) {
       }
     }
 
-    sheet(SHEETS.Orders).appendRow([
-      orderId, p.userId, String(p.recipientName).trim(), String(p.phone).trim(), String(p.address).trim(),
+    var phoneText = String(p.phone).trim();
+    var shOrders = sheet(SHEETS.Orders);
+    shOrders.appendRow([
+      orderId, p.userId, String(p.recipientName).trim(), phoneText, String(p.address).trim(),
       p.courier, shippingCost, subtotal, total, p.paymentMethod,
       'menunggu_pembayaran_simulasi', 'menunggu_pembayaran_simulasi', now, now,
     ]);
+    // Kolom phone (4) dipaksa berformat teks agar '0'/'+' di depan tidak hilang
+    // (Sheets mengubah "0812…" menjadi angka 812… bila dibiarkan otomatis).
+    shOrders.getRange(shOrders.getLastRow(), 4).setNumberFormat('@').setValue(phoneText);
 
     try {
       var shItems = sheet(SHEETS.OrderItems);
@@ -456,4 +463,78 @@ function markOrderNote(orderId, note) {
       }
     }
   } catch (e) { /* abaikan */ }
+}
+
+/* ---------- pemeliharaan (khusus pengembangan) ---------- */
+
+/**
+ * Menghapus baris data uji dan mengembalikan stok demo. Destruktif, jadi wajib
+ * menyertakan `confirm: 'HAPUS-DATA-UJI'` agar tidak terpanggil tanpa sengaja.
+ * Payload: { confirm, emails[], userIds[], orderIds[], resetProducts[] }.
+ */
+function cleanupTestData(p) {
+  if (p.confirm !== 'HAPUS-DATA-UJI') fail('Konfirmasi pembersihan tidak valid.', 400);
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    var emails = [];
+    for (var e = 0; e < (p.emails || []).length; e++) emails.push(normEmail(p.emails[e]));
+
+    var userIds = [];
+    for (var i = 0; i < (p.userIds || []).length; i++) userIds.push(String(p.userIds[i]));
+
+    var u = rows(SHEETS.Users);
+    for (var j = 0; j < u.data.length; j++) {
+      var o = toObj(u.header, u.data[j]);
+      if (emails.indexOf(normEmail(o.email)) >= 0 && userIds.indexOf(String(o.userId)) < 0) {
+        userIds.push(String(o.userId));
+      }
+    }
+
+    var orderIds = [];
+    for (var k = 0; k < (p.orderIds || []).length; k++) orderIds.push(String(p.orderIds[k]));
+
+    var result = {
+      userIds: userIds,
+      users: deleteRowsBy(SHEETS.Users, 'userId', userIds),
+      sessions: deleteRowsBy(SHEETS.Sessions, 'userId', userIds),
+      orders: deleteRowsBy(SHEETS.Orders, 'orderId', orderIds),
+      orderItems: deleteRowsBy(SHEETS.OrderItems, 'orderId', orderIds),
+      products: [],
+    };
+
+    var shProd = sheet(SHEETS.Products);
+    var colBySize = { S: 7, M: 8, L: 9, XL: 10 };
+    var resets = p.resetProducts || [];
+    for (var r = 0; r < resets.length; r++) {
+      var item = resets[r];
+      var col = colBySize[item.size];
+      if (!col) fail('Ukuran tidak valid: ' + item.size, 400);
+      var row = findProductRowIndex(item.productId);
+      shProd.getRange(row, col).setValue(Number(item.value));
+      if (item.updatedAt) shProd.getRange(row, 12).setValue(item.updatedAt);
+      result.products.push(item.productId + '/' + item.size + '=' + item.value);
+    }
+    return result;
+  } finally {
+    try { lock.releaseLock(); } catch (e) { /* abaikan */ }
+  }
+}
+
+function deleteRowsBy(sheetName, column, values) {
+  if (!values || values.length === 0) return 0;
+  var r = rows(sheetName);
+  if (r.data.length === 0) return 0;
+  var idx = r.header.indexOf(column);
+  if (idx < 0) fail('Kolom ' + column + ' tidak ada di sheet ' + sheetName, 500);
+  var wanted = {};
+  for (var i = 0; i < values.length; i++) wanted[String(values[i])] = true;
+  var deleted = 0;
+  for (var j = r.data.length - 1; j >= 0; j--) {
+    if (wanted[String(r.data[j][idx])]) {
+      r.sh.deleteRow(j + 2);
+      deleted++;
+    }
+  }
+  return deleted;
 }
