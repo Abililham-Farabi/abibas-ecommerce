@@ -18,8 +18,51 @@ export function formatDate(iso) {
   }
 }
 
+// ---------- ukuran & stok ----------
+// Satu sumber kebenaran untuk keluarga ukuran. Harus sama dengan SIZE_TYPES
+// di apps-script/Code.gs.
+export const SIZE_TYPES = {
+  apparel: ['S', 'M', 'L', 'XL'],
+  shoes: ['39', '40', '41', '42', '43', '44'],
+  one: ['ALL'],
+};
+
+// Pilihan filter katalog: ukuran yang bisa dicari pembeli (tanpa 'ALL').
+export const SIZES = [...SIZE_TYPES.apparel, ...SIZE_TYPES.shoes];
+
+// Perkiraan panjang kaki (cm) per ukuran sepatu — hanya acuan, bukan jaminan.
+export const SHOE_SIZE_CM = {
+  39: 24.5,
+  40: 25,
+  41: 25.5,
+  42: 26,
+  43: 26.5,
+  44: 27,
+};
+
+export function sizesFor(product) {
+  return SIZE_TYPES[product?.sizeType] || SIZE_TYPES.apparel;
+}
+
+export function isOneSize(product) {
+  return (product?.sizeType || 'apparel') === 'one';
+}
+
+export function stockOf(product, size) {
+  if (!product) return 0;
+  if (product.stock) return Number(product.stock[size] ?? 0);
+  return Number(product[`stock${size}`] ?? 0);
+}
+
 export function totalStock(p) {
-  return ['S', 'M', 'L', 'XL'].reduce((a, s) => a + Number(p?.[`stock${s}`] ?? 0), 0);
+  if (!p) return 0;
+  if (p.stock) return Object.values(p.stock).reduce((a, v) => a + Number(v || 0), 0);
+  return SIZES.reduce((a, s) => a + stockOf(p, s), 0);
+}
+
+// 'ALL' tidak ditampilkan ke pembeli.
+export function sizeLabel(size) {
+  return !size || size === 'ALL' ? '' : String(size);
 }
 
 export function isDemoMode() {

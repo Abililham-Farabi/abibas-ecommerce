@@ -3,9 +3,20 @@ import { Link, useParams } from 'react-router-dom';
 import { Alert, QtyStepper } from '../components/ui';
 import { api } from '../api/client';
 import { useCart } from '../context/CartContext';
-import { DEMO_PRODUCTS, SIZES, stockOf } from '../data/products.demo';
+import { DEMO_PRODUCTS } from '../data/products.demo';
 import { EXCHANGE_POLICY_SHORT } from '../data/couriers';
-import { formatRupiah, isDemoMode } from '../utils/format';
+import {
+  formatRupiah,
+  isDemoMode,
+  isOneSize,
+  SHOE_SIZE_CM,
+  sizesFor,
+  stockOf,
+} from '../utils/format';
+
+function initialSize(product) {
+  return isOneSize(product) ? 'ALL' : '';
+}
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -13,15 +24,18 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(() =>
     DEMO_PRODUCTS.find((p) => p.productId === id),
   );
-  const [size, setSize] = useState('');
+  const [size, setSize] = useState(() =>
+    initialSize(DEMO_PRODUCTS.find((p) => p.productId === id)),
+  );
   const [qty, setQty] = useState(1);
   const [notice, setNotice] = useState('');
   const [added, setAdded] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    setProduct(DEMO_PRODUCTS.find((p) => p.productId === id));
-    setSize('');
+    const local = DEMO_PRODUCTS.find((p) => p.productId === id);
+    setProduct(local);
+    setSize(initialSize(local));
     setQty(1);
     setNotice('');
     setError('');
@@ -30,15 +44,21 @@ export default function ProductDetail() {
       .getProducts()
       .then((d) => {
         const found = d.products.find((p) => p.productId === id);
-        if (found) setProduct(found);
-        else setError('Produk tidak ditemukan.');
+        if (found) {
+          setProduct(found);
+          setSize(initialSize(found));
+        } else setError('Produk tidak ditemukan.');
       })
       .catch((e) => setError(e.message));
   }, [id]);
 
+  const oneSize = isOneSize(product);
+  const sizes = sizesFor(product);
+  const activeSize = oneSize ? 'ALL' : size;
+
   const maxQty = useMemo(
-    () => (product && size ? stockOf(product, size) : 0),
-    [product, size],
+    () => (product && activeSize ? stockOf(product, activeSize) : 0),
+    [product, activeSize],
   );
 
   if (error) {
@@ -54,17 +74,17 @@ export default function ProductDetail() {
 
   function handleAdd() {
     setNotice('');
-    if (!size) {
-      setNotice('Pilih ukuran dulu ya — S, M, L, atau XL.');
+    if (!activeSize) {
+      setNotice('Pilih ukuran dulu ya.');
       return;
     }
-    const stok = stockOf(product, size);
+    const stok = stockOf(product, activeSize);
     if (stok <= 0 || qty < 1 || qty > stok) {
-      setNotice(`Ukuran ${size} tersisa ${stok}. Sesuaikan jumlahnya.`);
+      setNotice(`${oneSize ? 'Stok' : `Ukuran ${size}`} tersisa ${stok}. Sesuaikan jumlahnya.`);
       return;
     }
-    addItem(product, size, qty);
-    setNotice(`${product.name} (${size}) × ${qty} masuk keranjang.`);
+    addItem(product, activeSize, qty);
+    setNotice(`${product.name}${oneSize ? '' : ` (${size})`} × ${qty} masuk keranjang.`);
     setAdded(true);
     window.setTimeout(() => setAdded(false), 2500);
   }
@@ -86,7 +106,7 @@ export default function ProductDetail() {
               src={product.imageUrl}
               alt={product.name}
               className="aspect-[3/4] w-full object-cover"
-              onError={(e) => { e.currentTarget.src = '/img/ab-t001.svg'; }}
+              onError={(e) => { e.currentTarget.src = '/img/placeholder.svg'; }}
             />
           </div>
           <p className="mt-3 text-xs text-ink-400">
@@ -105,42 +125,65 @@ export default function ProductDetail() {
           <div className="mt-6">
             <p className="text-sm font-semibold">Ukuran</p>
           </div>
-          <div className="mt-3 flex gap-2" role="radiogroup" aria-label="Pilih ukuran">
-            {SIZES.map((s) => {
-              const stok = stockOf(product, s);
-              const out = stok <= 0;
-              const active = size === s;
-              return (
-                <button
-                  key={s}
-                  type="button"
-                  role="radio"
-                  aria-checked={active}
-                  disabled={out}
-                  onClick={() => { setSize(s); setQty(1); setNotice(''); }}
-                  className={`min-w-14 rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
-                    active
-                      ? 'border-ink-900 bg-ink-900 text-white'
-                      : 'border-ink-200 bg-white hover:border-ink-900'
-                  } ${out ? 'cursor-not-allowed opacity-35 line-through' : ''}`}
-                >
-                  {s}
-                </button>
-              );
-            })}
-          </div>
-          <p className="mt-2 text-xs text-ink-400" aria-live="polite">
-            {size
-              ? maxQty > 0 ? `Ukuran ${size} tersedia (${maxQty} pcs).` : `Ukuran ${size} habis.`
-              : 'Stok tampil per ukuran — yang tercoret sedang habis.'}
-          </p>
+
+          {oneSize ? (
+            <p className="mt-2 text-sm text-ink-600">
+              Satu ukuran — tidak perlu memilih ukuran.
+            </p>
+          ) : (
+            <>
+              <div className="mt-3 flex flex-wrap gap-2" role="radiogroup" aria-label="Pilih ukuran">
+                {sizes.map((s) => {
+                  const stok = stockOf(product, s);
+                  const out = stok <= 0;
+                  const active = size === s;
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      role="radio"
+                      aria-checked={active}
+                      disabled={out}
+                      onClick={() => { setSize(s); setQty(1); setNotice(''); }}
+                      className={`min-w-14 rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
+                        active
+                          ? 'border-ink-900 bg-ink-900 text-white'
+                          : 'border-ink-200 bg-white hover:border-ink-900'
+                      } ${out ? 'cursor-not-allowed opacity-35 line-through' : ''}`}
+                    >
+                      {s}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {product.sizeType === 'shoes' && (
+                <p className="mt-2 text-xs text-ink-400">
+                  Acuan panjang kaki (perkiraan):{' '}
+                  {sizes.map((s) => `${s}≈${SHOE_SIZE_CM[s]} cm`).join(' · ')}
+                </p>
+              )}
+
+              <p className="mt-2 text-xs text-ink-400" aria-live="polite">
+                {size
+                  ? maxQty > 0 ? `Ukuran ${size} tersedia (${maxQty} pcs).` : `Ukuran ${size} habis.`
+                  : 'Stok tampil per ukuran — yang tercoret sedang habis.'}
+              </p>
+            </>
+          )}
+
+          {oneSize && (
+            <p className="mt-2 text-xs text-ink-400" aria-live="polite">
+              {maxQty > 0 ? `Stok tersisa ${maxQty} pcs.` : 'Stok habis.'}
+            </p>
+          )}
 
           <div className="mt-6 flex items-center gap-4">
             <QtyStepper value={qty} min={1} max={Math.max(maxQty, 1)} onChange={(v) => setQty(Math.max(1, v))} />
             <button
               type="button"
               onClick={handleAdd}
-              disabled={!size || maxQty <= 0}
+              disabled={!activeSize || maxQty <= 0}
               className={`btn-primary flex-1 ${added ? '!bg-emerald-700' : ''}`}
             >
               {added ? '✓ Masuk keranjang' : 'Tambah ke keranjang'}

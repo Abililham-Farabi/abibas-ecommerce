@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { formatRupiah, totalStock } from '../utils/format';
 
 function fallback(e) {
-  e.currentTarget.src = '/img/ab-t001.svg';
+  e.currentTarget.src = '/img/placeholder.svg';
 }
 
 export default function ProductCard({ product }) {

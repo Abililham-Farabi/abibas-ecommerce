@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { COURIERS, EXCHANGE_POLICY_SHORT, PAYMENT_METHODS } from '../data/couriers';
 import { validateCheckout } from '../utils/validate';
-import { formatRupiah, isDemoMode } from '../utils/format';
+import { formatRupiah, isDemoMode, sizeLabel } from '../utils/format';
 
 export default function Checkout() {
   const { items, subtotal, clear } = useCart();
@@ -152,8 +152,8 @@ export default function Checkout() {
           <ul className="mt-4 space-y-3">
             {items.map((i) => (
               <li key={i.key} className="flex items-center gap-3">
-                <img src={i.imageUrl} alt="" aria-hidden="true" onError={(e) => { e.currentTarget.src = '/img/ab-t001.svg'; }} className="h-12 w-10 rounded-lg bg-ink-100 object-cover" />
-                <span className="min-w-0 flex-1 truncate text-sm">{i.name} <span className="text-ink-400">({i.size}) × {i.qty}</span></span>
+                <img src={i.imageUrl} alt="" aria-hidden="true" onError={(e) => { e.currentTarget.src = '/img/placeholder.svg'; }} className="h-12 w-10 rounded-lg bg-ink-100 object-cover" />
+                <span className="min-w-0 flex-1 truncate text-sm">{i.name}{sizeLabel(i.size) ? ` (${i.size})` : ''} <span className="text-ink-400">× {i.qty}</span></span>
                 <span className="text-sm font-medium">{formatRupiah(i.qty * Number(i.price))}</span>
               </li>
             ))}

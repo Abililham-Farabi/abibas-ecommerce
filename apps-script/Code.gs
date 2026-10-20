@@ -29,7 +29,37 @@ var SHEETS = {
 
 var COURIER_COST = { reguler: 15000, ekspres: 28000, hemat: 10000 };
 var PAYMENTS = ['transfer', 'qris', 'ewallet'];
-var SIZES = ['S', 'M', 'L', 'XL'];
+
+// Keluarga ukuran. Harus sama dengan SIZE_TYPES di src/utils/format.js.
+var SIZE_TYPES = {
+  apparel: ['S', 'M', 'L', 'XL'],
+  shoes: ['39', '40', '41', '42', '43', '44'],
+  one: ['ALL'],
+};
+
+function sizesFor(product) {
+  return SIZE_TYPES[(product && product.sizeType) || 'apparel'] || SIZE_TYPES.apparel;
+}
+
+function headerOf(sheetName) {
+  var sh = sheet(sheetName);
+  return sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0].map(function (v) {
+    return String(v);
+  });
+}
+
+// Peta ukuran -> nomor kolom stok, dibaca dari NAMA HEADER agar menambah
+// kolom baru (stock39..stock44, stockOne) tidak menggeser logika.
+// stockOne dipakai untuk produk satu ukuran dengan kunci 'ALL'.
+function stockColumns(header) {
+  var map = {};
+  for (var i = 0; i < header.length; i++) {
+    var m = /^stock(.+)$/.exec(String(header[i]));
+    if (!m) continue;
+    map[m[1] === 'One' ? 'ALL' : m[1]] = i + 1;
+  }
+  return map;
+}
 
 function doPost(e) {
   try {
@@ -212,9 +242,15 @@ function revokeSession(tokenHash) {
 
 function getProducts() {
   var r = rows(SHEETS.Products);
+  var cols = stockColumns(r.header);
   var out = [];
   for (var i = 0; i < r.data.length; i++) {
     var o = toObj(r.header, r.data[i]);
+    var stock = {};
+    for (var size in cols) {
+      if (!Object.prototype.hasOwnProperty.call(cols, size)) continue;
+      stock[size] = Number(r.data[i][cols[size] - 1]) || 0;
+    }
     out.push({
       productId: String(o.productId),
       name: String(o.name),
@@ -222,10 +258,13 @@ function getProducts() {
       description: String(o.description || ''),
       price: Number(o.price),
       imageUrl: String(o.imageUrl || ''),
-      stockS: Number(o.stockS) || 0,
-      stockM: Number(o.stockM) || 0,
-      stockL: Number(o.stockL) || 0,
-      stockXL: Number(o.stockXL) || 0,
+      sizeType: String(o.sizeType || 'apparel'),
+      stock: stock,
+      // Kompatibilitas sementara untuk frontend lama (sebelum varian ukuran).
+      stockS: Number(stock.S) || 0,
+      stockM: Number(stock.M) || 0,
+      stockL: Number(stock.L) || 0,
+      stockXL: Number(stock.XL) || 0,
       createdAt: o.createdAt,
       updatedAt: o.updatedAt,
     });
@@ -438,10 +477,10 @@ function createOrderAtomic(p) {
       var it = p.items[i] || {};
       var prod = catalog[String(it.productId)];
       if (!prod) fail('Produk tidak ditemukan: ' + it.productId, 400);
-      if (SIZES.indexOf(it.size) < 0) fail('Ukuran tidak valid untuk ' + prod.name, 400);
+      if (sizesFor(prod).indexOf(String(it.size)) < 0) fail('Ukuran tidak valid untuk ' + prod.name, 400);
       var qty = Number(it.quantity);
       if (qty % 1 !== 0 || qty < 1 || qty > 20) fail('Kuantitas tidak valid untuk ' + prod.name, 400);
-      var stok = Number(prod['stock' + it.size]) || 0;
+      var stok = Number((prod.stock || {})[it.size]) || 0;
       if (stok < qty) fail('Stok ' + prod.name + ' ukuran ' + it.size + ' tersisa ' + stok + '.', 409);
       var line = {
         productId: prod.productId,
@@ -465,15 +504,19 @@ function createOrderAtomic(p) {
     // menulis baris apa pun — kegagalan stok tidak boleh meninggalkan
     // pesanan yatim di sheet.
     var shProd = sheet(SHEETS.Products);
-    var colBySize = { S: 7, M: 8, L: 9, XL: 10 }; // kolom stockS..stockXL (1-indexed)
+    var prodHeader = headerOf(SHEETS.Products);
+    var colBySize = stockColumns(prodHeader);
+    var updCol = prodHeader.indexOf('updatedAt') + 1;
     var need = {};
     for (var v = 0; v < lines.length; v++) {
       var LV = lines[v];
-      var lk = LV.rowIndex + ':' + colBySize[LV.size];
+      var lvCol = colBySize[LV.size];
+      if (!lvCol) fail('Ukuran ' + LV.size + ' tidak punya kolom stok di sheet Products.', 500);
+      var lk = LV.rowIndex + ':' + lvCol;
       if (!need[lk]) {
         need[lk] = {
           rowIndex: LV.rowIndex,
-          col: colBySize[LV.size],
+          col: lvCol,
           qty: 0,
           name: LV.productNameSnapshot,
           size: LV.size,
@@ -525,7 +568,7 @@ function createOrderAtomic(p) {
       var next = current - D.qty;
       if (next < 0) fail('Stok berubah saat checkout untuk ' + D.name + ' (' + D.size + ').', 409);
       cell.setValue(next);
-      shProd.getRange(D.rowIndex, 12).setValue(now);
+      if (updCol > 0) shProd.getRange(D.rowIndex, updCol).setValue(now);
     }
 
     return getOrderWithItems(orderId, p.userId);
@@ -594,7 +637,9 @@ function cleanupTestData(p) {
     };
 
     var shProd = sheet(SHEETS.Products);
-    var colBySize = { S: 7, M: 8, L: 9, XL: 10 };
+    var resetHeader = headerOf(SHEETS.Products);
+    var colBySize = stockColumns(resetHeader);
+    var resetUpdCol = resetHeader.indexOf('updatedAt') + 1;
     var resets = p.resetProducts || [];
     for (var r = 0; r < resets.length; r++) {
       var item = resets[r];
@@ -602,7 +647,7 @@ function cleanupTestData(p) {
       if (!col) fail('Ukuran tidak valid: ' + item.size, 400);
       var row = findProductRowIndex(item.productId);
       shProd.getRange(row, col).setValue(Number(item.value));
-      if (item.updatedAt) shProd.getRange(row, 12).setValue(item.updatedAt);
+      if (item.updatedAt && resetUpdCol > 0) shProd.getRange(row, resetUpdCol).setValue(item.updatedAt);
       result.products.push(item.productId + '/' + item.size + '=' + item.value);
     }
     return result;

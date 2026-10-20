@@ -3,8 +3,8 @@ import { Link, useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { Modal, Alert } from '../components/ui';
 import { api } from '../api/client';
-import { CATEGORIES, DEMO_PRODUCTS, SIZES, stockOf } from '../data/products.demo';
-import { isDemoMode } from '../utils/format';
+import { CATEGORIES, DEMO_PRODUCTS } from '../data/products.demo';
+import { isDemoMode, SIZES, stockOf } from '../utils/format';
 
 const SORTS = [
   { id: 'relevansi', label: 'Relevansi' },
@@ -12,10 +12,6 @@ const SORTS = [
   { id: 'termahal', label: 'Harga termahal' },
   { id: 'nama', label: 'Nama A–Z' },
 ];
-
-function shortCat(c) {
-  return c.replace(' oversize', '').replace(' kasual', '');
-}
 
 export default function Catalog() {
   const [params, setParams] = useSearchParams();
@@ -82,7 +78,7 @@ export default function Catalog() {
                   : 'border-ink-200 bg-white text-ink-600 hover:border-ink-900'
               }`}
             >
-              {c === 'Semua' ? 'Semua' : shortCat(c)}
+              {c}
             </button>
           ))}
         </div>
@@ -139,14 +135,14 @@ export default function Catalog() {
           <>
             <Link to="/katalog" className="hover:text-ink-900">Katalog</Link>
             {' / '}
-            <span className="text-ink-900">{shortCat(kat)}</span>
+            <span className="text-ink-900">{kat}</span>
           </>
         )}
       </nav>
 
       <div className="mt-2 flex items-baseline justify-between gap-4">
         <h1 className="font-display text-2xl font-bold sm:text-3xl">
-          {kat === 'Semua' ? 'Semua produk' : shortCat(kat)}
+          {kat === 'Semua' ? 'Semua produk' : kat}
         </h1>
         <p className="shrink-0 text-sm text-ink-500" aria-live="polite">
           {loading ? 'Memuat…' : `${filtered.length} produk`}
@@ -157,7 +153,7 @@ export default function Catalog() {
         <input
           value={q}
           onChange={(e) => set('q', e.target.value)}
-          placeholder="Cari kaos, kemeja, hoodie…"
+          placeholder="Cari sepatu, baju, celana, gel…"
           aria-label="Cari produk"
           className="input lg:max-w-sm"
         />

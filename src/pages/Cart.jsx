@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import CostSummary from '../components/CostSummary';
 import { QtyStepper } from '../components/ui';
 import { useCart } from '../context/CartContext';
-import { formatRupiah } from '../utils/format';
+import { formatRupiah, sizeLabel } from '../utils/format';
 
 export default function Cart() {
   const { items, setQty, removeItem, subtotal } = useCart();
@@ -11,7 +11,7 @@ export default function Cart() {
     return (
       <div className="container-store py-16 text-center">
         <h1 className="font-display text-2xl font-bold">Keranjang kosong</h1>
-        <p className="mt-2 text-sm text-ink-500">Yuk, mulai isi dengan pakaian favoritmu.</p>
+        <p className="mt-2 text-sm text-ink-500">Yuk, mulai isi dengan perlengkapan larimu.</p>
         <Link to="/katalog" className="btn-primary mt-6">Lihat katalog</Link>
       </div>
     );
@@ -29,12 +29,14 @@ export default function Cart() {
                 src={i.imageUrl}
                 alt=""
                 aria-hidden="true"
-                onError={(e) => { e.currentTarget.src = '/img/ab-t001.svg'; }}
+                onError={(e) => { e.currentTarget.src = '/img/placeholder.svg'; }}
                 className="h-24 w-20 shrink-0 rounded-xl bg-ink-100 object-cover"
               />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{i.name}</p>
-                <p className="mt-0.5 text-xs text-ink-400">Ukuran {i.size}</p>
+                {sizeLabel(i.size) && (
+                  <p className="mt-0.5 text-xs text-ink-400">Ukuran {i.size}</p>
+                )}
                 <p className="mt-0.5 text-xs text-ink-400">{formatRupiah(i.price)} / pcs</p>
                 <div className="mt-3 flex items-center gap-3">
                   <QtyStepper small value={i.qty} min={0} max={20} onChange={(v) => setQty(i.key, v)} />

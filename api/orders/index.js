@@ -8,7 +8,13 @@ import {
 
 const COURIER_COST = { reguler: 15000, ekspres: 28000, hemat: 10000 };
 const PAYMENTS = ['transfer', 'qris', 'ewallet'];
-const SIZES = ['S', 'M', 'L', 'XL'];
+// Harus sama dengan SIZE_TYPES di src/utils/format.js dan apps-script/Code.gs.
+// Validasi per produk (sizeType) tetap dilakukan GAS; di sini hanya gerbang awal.
+const SIZES = [
+  'S', 'M', 'L', 'XL',
+  '39', '40', '41', '42', '43', '44',
+  'ALL',
+];
 
 export default async function handler(req, res) {
   try {
@@ -29,7 +35,7 @@ export default async function handler(req, res) {
       }
       for (const it of items) {
         if (!it?.productId || !SIZES.includes(it?.size)) {
-          return sendJson(res, 400, { error: 'Ukuran tidak valid. Gunakan S, M, L, atau XL.' });
+          return sendJson(res, 400, { error: 'Ukuran tidak valid. Gunakan S–XL, 39–44, atau satu ukuran.' });
         }
         const q = Number(it?.quantity);
         if (!Number.isInteger(q) || q < 1 || q > 20) {

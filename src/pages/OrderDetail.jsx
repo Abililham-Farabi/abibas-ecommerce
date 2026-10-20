@@ -10,6 +10,7 @@ import {
   formatRupiah,
   isDemoMode,
   nextOrderStatus,
+  sizeLabel,
 } from '../utils/format';
 
 const COURIER_LABEL = { reguler: 'Reguler', ekspres: 'Ekspres', hemat: 'Hemat' };
@@ -150,7 +151,9 @@ export default function OrderDetail() {
             <li key={idx} className="flex items-center justify-between gap-3 py-3 text-sm">
               <span className="min-w-0">
                 <span className="block truncate font-medium">{it.productNameSnapshot || it.productId}</span>
-                <span className="text-xs text-ink-400">Ukuran {it.size} × {it.quantity}</span>
+                <span className="text-xs text-ink-400">
+                  {sizeLabel(it.size) ? `Ukuran ${it.size} × ${it.quantity}` : `${it.quantity} pcs`}
+                </span>
               </span>
               <span className="font-medium">{formatRupiah(it.subtotal)}</span>
             </li>
