@@ -341,3 +341,32 @@ per produk, decrement/restore stok dinamis, `updatedAt` dicari dari header).
 Belum ada pengujian database/GAS di branch ini sesuai keputusan pemilik;
 langkah tempel `Code.gs`, isi ulang tab `Products`, dan smoke test produksi
 dilakukan setelah merge ke `main`.
+
+## M. Peluncuran katalog lari ke produksi (20 Okt 2026)
+
+Merge `feat/running-store` → `main` (fast-forward `9ac1721..6f278a4`), Vercel
+auto-deploy; bundle produksi `assets/index-Dvy_j2-T.js`. GAS dinaikkan ke
+versi 11, tab `Products` diisi 10 produk lari (20 kolom) dari
+`data/products.xlsx`.
+
+### Smoke test produksi (API langsung)
+
+| Uji | Hasil |
+|---|---|
+| Register + login pengguna uji | 201 / 200 |
+| POST `/api/orders` sepatu `AB-R001` size `42` + gel `AB-G001` `ALL` ×2 | 201, total Rp614.000 |
+| Stok `AB-R001/42` | 6 → 5 |
+| Stok `AB-G001/ALL` | 40 → 38 |
+| Stok `AB-R001/41` (tak dipesan) | tetap 6 |
+| GET `/api/orders/:id` | 200, 2 item, size `42` & `ALL` tersimpan |
+| `/panduan-ukuran` | redirect ke `/katalog` (10 produk) |
+| Gambar `/katalog?kat=Baju lari` | kaos hitam + singlet (bukan sepatu) |
+
+### Pembersihan data uji
+
+`cleanupTestData`: 1 user, 2 session, 1 order, 2 order item dihapus;
+stok `AB-R001/42` = 6 dan `AB-G001/ALL` = 40 dikembalikan. Pesanan asli
+pemilik tidak disentuh (penghapusan hanya berdasarkan email/orderId uji).
+
+Catatan: dua produk yang sempat dipesan kini punya `updatedAt` terisi —
+nilainya benar (waktu stok terakhir berubah), bukan data uji yang tertinggal.
