@@ -16,8 +16,8 @@ Lihat `https://unsplash.com/license`.
 | `ab-r001.jpg` | `photo-1542291026-7eec264c27ff` | Sepatu Lari Daily Trainer |
 | `ab-r002.jpg` | `photo-1571008887538-b36bb32f4571` | Sepatu Lari Tempo Ringan |
 | `ab-r003.jpg` | `photo-1606107557195-0e29a4b5b4aa` | Sepatu Lari Trail |
-| `ab-b001.jpg` | `photo-1602853186862-723dee51784c` | Kaos Lari Dry-Fit |
-| `ab-b002.jpg` | `photo-1597892657493-6847b9640bac` | Singlet Lari Mesh |
+| `ab-b001.jpg` | `photo-1618354691373-d851c5c3a990` | Kaos Lari Dry-Fit |
+| `ab-b002.jpg` | `photo-1562771379-eafdca7a02f8` | Singlet Lari Mesh |
 | `ab-c001.jpg` | `photo-1766970096346-937852c7d350` | Celana Lari 5" |
 | `ab-c002.jpg` | `photo-1715609104589-97585b210c6e` | Tights Lari Panjang |
 | `ab-w001.jpg` | `photo-1602143407151-7111542de6e8` | Botol Lari 500 ml |
