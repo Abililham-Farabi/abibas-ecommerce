@@ -19,7 +19,7 @@ Lihat `https://unsplash.com/license`.
 | `ab-b001.jpg` | `photo-1618354691373-d851c5c3a990` | Kaos Lari Dry-Fit |
 | `ab-b002.jpg` | `photo-1562771379-eafdca7a02f8` | Singlet Lari Mesh |
 | `ab-c001.jpg` | `photo-1766970096346-937852c7d350` | Celana Lari 5" |
-| `ab-c002.jpg` | `photo-1715609104589-97585b210c6e` | Tights Lari Panjang |
+| `ab-c002.jpg` | `photo-1585358421245-141814264f68` | Tights Lari Panjang |
 | `ab-w001.jpg` | `photo-1602143407151-7111542de6e8` | Botol Lari 500 ml |
 | `hero.jpg` | `photo-1552674605-db6ffd4facb5` | Hero beranda (pelari saat matahari terbit) |
 
