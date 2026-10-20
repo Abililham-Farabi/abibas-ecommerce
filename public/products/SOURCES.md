@@ -1,8 +1,7 @@
 # Sumber Foto — Abibas
 
-Seluruh foto di `public/products/` diunduh dari **Unsplash**
-(`images.unsplash.com`) pada 15 Okt 2026 dan disimpan lokal agar tidak
-bergantung pada URL eksternal.
+Foto di `public/products/` diunduh dari **Unsplash** (`images.unsplash.com`)
+pada 20 Okt 2026 dan disimpan lokal agar tidak bergantung pada URL eksternal.
 
 ## Lisensi
 
@@ -14,19 +13,23 @@ Lihat `https://unsplash.com/license`.
 
 | File lokal | ID foto Unsplash | Peruntukan |
 |---|---|---|
-| `ab-t001.jpg` | `photo-1618354691373-d851c5c3a990` | Kaos Oversize Hitam (referensi) |
-| `ab-t002.jpg` | `photo-1521572163474-6864f9cf17ab` | Kaos Oversize Putih (referensi) |
-| `ab-t003.jpg` | `photo-1620799140408-edc6dcb6d633` | Kaos Oversize Sage (referensi) |
-| `ab-k001.jpg` | `photo-1602810318383-e386cc2a3ccf` | Kemeja Linen Cream (referensi) |
-| `ab-k002.jpg` | `photo-1596755094514-f87e34085b2c` | Kemeja Oxford Navy (referensi) |
-| `ab-k003.jpg` | `photo-1520975954732-35dd22299614` | Kemeja Flanel Cokelat (referensi) |
-| `ab-h001.jpg` | `photo-1556821840-3a63f95609a7` | Hoodie Abu Muda (referensi) |
-| `ab-h002.jpg` | `photo-1578681994506-b8f463449011` | Hoodie Hitam (referensi) |
-| `hero.jpg` | `photo-1441986300917-64674bd600d8` | Hero beranda (suasana toko) |
+| `ab-r001.jpg` | `photo-1542291026-7eec264c27ff` | Sepatu Lari Daily Trainer |
+| `ab-r002.jpg` | `photo-1571008887538-b36bb32f4571` | Sepatu Lari Tempo Ringan |
+| `ab-r003.jpg` | `photo-1606107557195-0e29a4b5b4aa` | Sepatu Lari Trail |
+| `ab-b001.jpg` | `photo-1602853186862-723dee51784c` | Kaos Lari Dry-Fit |
+| `ab-b002.jpg` | `photo-1597892657493-6847b9640bac` | Singlet Lari Mesh |
+| `ab-c001.jpg` | `photo-1766970096346-937852c7d350` | Celana Lari 5" |
+| `ab-c002.jpg` | `photo-1715609104589-97585b210c6e` | Tights Lari Panjang |
+| `ab-w001.jpg` | `photo-1602143407151-7111542de6e8` | Botol Lari 500 ml |
+| `hero.jpg` | `photo-1552674605-db6ffd4facb5` | Hero beranda (pelari saat matahari terbit) |
+
+Gel (`ab-g001.svg`, `ab-g002.svg`) **bukan foto**: itu placeholder buatan
+sendiri (SVG, monokrom + aksen) sampai foto produk asli tersedia.
 
 ## Kejujuran visual
 
 Foto-foto ini adalah **foto referensi gaya (ilustrasi)** — bukan foto produk
-aktual Abibas. Warna, model, dan detail jahitan pada foto bisa berbeda dari
-barang demo. Keterangan ini disampaikan secara halus di halaman produk
-("Foto referensi gaya — bukan foto produk aktual").
+aktual Abibas, dan sebagian menampilkan merek lain (Nike, Adidas). Warna,
+model, dan detail bisa berbeda dari barang demo. Keterangan ini disampaikan
+secara halus di halaman produk ("Foto referensi gaya — bukan foto produk
+aktual").

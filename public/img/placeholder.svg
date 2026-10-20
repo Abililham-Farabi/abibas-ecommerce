@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" width="600" height="800" role="img" aria-label="Foto produk menyusul">
+  <rect width="600" height="800" fill="#f6f6f4"/>
+  <rect x="18" y="18" width="564" height="764" rx="30" fill="#ffffff" stroke="#e7e7e3" stroke-width="2"/>
+  <text x="300" y="420" text-anchor="middle" font-family="'Space Grotesk',system-ui,sans-serif" font-size="180" font-weight="700" fill="#c9c9c2">?</text>
+  <text x="300" y="520" text-anchor="middle" font-family="'Space Grotesk',system-ui,sans-serif" font-size="28" font-weight="700" fill="#4c4c47">Foto menyusul</text>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" width="600" height="800" role="img" aria-label="Energy Gel Jeruk — foto menyusul">
+  <rect width="600" height="800" fill="#f6f6f4"/>
+  <rect x="18" y="18" width="564" height="764" rx="30" fill="#ffffff" stroke="#e7e7e3" stroke-width="2"/>
+  <g transform="rotate(-6 300 360)">
+    <rect x="198" y="222" width="204" height="300" rx="18" fill="#e7e7e3" stroke="#c9c9c2" stroke-width="3"/>
+    <path d="M198 262h204" stroke="#c9c9c2" stroke-width="3" stroke-dasharray="9 9"/>
+    <rect x="198" y="222" width="204" height="40" rx="18" fill="#d3b586"/>
+    <text x="300" y="430" text-anchor="middle" font-family="'Space Grotesk',system-ui,sans-serif" font-size="132" font-weight="700" fill="#82827b">?</text>
+  </g>
+  <text x="300" y="620" text-anchor="middle" font-family="'Space Grotesk',system-ui,sans-serif" font-size="30" font-weight="700" fill="#4c4c47">Energy Gel Jeruk</text>
+  <text x="300" y="666" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="24" fill="#a8a8a0">Foto produk menyusul</text>
+</svg>
