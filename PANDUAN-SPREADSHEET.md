@@ -63,9 +63,12 @@ Setelah header terisi: blok baris 1 → **View → Freeze → 1 row**, lalu bold
 ## 4. Data awal
 
 - `Users`, `Orders`, `OrderItems`, `Sessions`: **kosongkan** (hanya header). Diisi otomatis saat register/login/checkout.
-- `Products`: isi 10 baris demo di bawah. **Cara tercepat:** klik sel `A2`,
-  lalu tempel blok tab-separated ini (Sheets otomatis memecah per kolom —
-  jangan pakai "Paste special → values only" dari tabel web).
+- `Products`: isi 10 baris demo di bawah. **Cara termudah:** buka
+  `data/products.xlsx` di Excel/Numbers, blok `A1:T11`, copy, lalu tempel di
+  sel `A1` tab `Products` (menimpa header lama). Sheets otomatis memecah per
+  kolom. Blok di bawah adalah alternatif (copy dari file, bukan dari chat):
+  tempel juga mulai `A1` karena header ikut di dalam blok — jangan mulai `A2`,
+  dan jangan pakai "Paste special → values only".
 
 ```
 productId	name	category	description	price	imageUrl	sizeType	stockS	stockM	stockL	stockXL	stock39	stock40	stock41	stock42	stock43	stock44	stockOne	createdAt	updatedAt
@@ -105,16 +108,18 @@ Tab `Products` versi lama hanya punya `stockS…stockXL` dan 8 baris kaos/kemeja
 hoodie. Dua cara, pilih salah satu:
 
 **A. Mulai bersih (disarankan untuk demo).**
-1. Blok `A2` sampai baris terakhir kolom `updatedAt` → hapus isinya.
-2. Ganti baris header dengan header baru di §2 (ada `sizeType` + 8 kolom stok).
-3. Tempel TSV di §4 mulai sel `A2`.
+1. Buka `data/products.xlsx` → blok `A1:T11` → copy.
+2. Di tab `Products`, klik sel `A1` → tempel. Header lama (12 kolom) dan
+   8 baris lama tertimpa; sheet baru 11 baris jadi tidak ada sisa baris
+   di bawahnya.
+3. Cek: header baris 1 = 20 kolom sesuai §2, baris 2–11 = 10 produk lari.
 
 **B. Pertahankan baris lama.**
 1. Sisipkan **1 kolom** setelah `imageUrl` → beri nama `sizeType`.
 2. Sisipkan **7 kolom** sebelum `createdAt` → beri nama `stock39`, `stock40`,
    `stock41`, `stock42`, `stock43`, `stock44`, `stockOne`.
 3. Isi `sizeType` baris lama dengan `apparel` (kolom stoknya sudah terisi).
-4. Tambahkan 10 baris produk lari dari TSV §4 di bawah baris lama.
+4. Tambahkan 10 baris produk lari dari `data/products.xlsx` di bawah baris lama.
 
 > Pesanan lama di `Orders`/`OrderItems` **tidak perlu diubah**: nama & harga
 > produk disimpan sebagai snapshot saat checkout, jadi riwayat tetap terbaca
@@ -143,5 +148,6 @@ hoodie. Dua cara, pilih salah satu:
 - [ ] 5 tab, nama persis.
 - [ ] Header baris 1 persis, tanpa spasi tambahan.
 - [ ] Harga/stok angka murni.
-- [ ] Kategori hanya: `Kaos oversize`, `Kemeja kasual`, `Hoodie`.
+- [ ] Kategori hanya: `Sepatu lari`, `Baju lari`, `Celana lari`, `Gel`, `Botol`.
+- [ ] `sizeType` hanya `shoes`, `apparel`, atau `one`.
 - [ ] 4 tab selain Products hanya header.
