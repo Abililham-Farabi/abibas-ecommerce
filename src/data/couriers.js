@@ -12,4 +12,4 @@ export const PAYMENT_METHODS = [
 ];
 
 export const EXCHANGE_POLICY_SHORT =
-  'Tukar ukuran gratis 1 kali dalam 7 hari setelah barang diterima, selama label produk masih utuh.';
+  'Tukar ukuran gratis 1 kali dalam 7 hari setelah barang diterima, selama label dan kemasan masih utuh.';

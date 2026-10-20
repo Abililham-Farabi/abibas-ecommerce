@@ -5,9 +5,11 @@ import { useCart } from '../context/CartContext';
 
 const CATS = [
   { label: 'Semua', to: '/katalog' },
-  { label: 'Kaos', to: '/katalog?kat=Kaos%20oversize' },
-  { label: 'Kemeja', to: '/katalog?kat=Kemeja%20kasual' },
-  { label: 'Hoodie', to: '/katalog?kat=Hoodie' },
+  { label: 'Sepatu', to: '/katalog?kat=Sepatu%20lari' },
+  { label: 'Baju', to: '/katalog?kat=Baju%20lari' },
+  { label: 'Celana', to: '/katalog?kat=Celana%20lari' },
+  { label: 'Gel', to: '/katalog?kat=Gel' },
+  { label: 'Botol', to: '/katalog?kat=Botol' },
 ];
 
 export default function Navbar() {
@@ -50,7 +52,7 @@ export default function Navbar() {
           </button>
 
           <Link to="/" className="flex items-center gap-2" aria-label="Abibas — beranda">
-            <img src="/logo.svg" alt="" className="h-7 w-7" aria-hidden="true" />
+            <img src="/logo-mark.svg" alt="" className="h-8 w-8" aria-hidden="true" />
             <span className="font-display text-xl font-bold tracking-tight">Abibas</span>
           </Link>
 
@@ -70,7 +72,7 @@ export default function Navbar() {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Cari kaos, kemeja, hoodie…"
+              placeholder="Cari sepatu, baju, gel…"
               aria-label="Cari produk"
               className="input rounded-full"
             />
@@ -123,7 +125,7 @@ export default function Navbar() {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Cari kaos, kemeja, hoodie…"
+            placeholder="Cari sepatu, baju, gel…"
             aria-label="Cari produk"
             className="input rounded-full"
           />

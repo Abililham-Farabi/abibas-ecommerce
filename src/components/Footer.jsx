@@ -7,17 +7,19 @@ export default function Footer() {
         <div>
           <p className="font-display text-lg font-bold">Abibas</p>
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-ink-500">
-            Pakaian kasual brand sendiri — kaos oversize, kemeja kasual, dan
-            hoodie. Ukuran jelas, harga jelas, pesanan terpantau.
+            Perlengkapan lari brand sendiri — sepatu, baju, celana, gel, dan
+            botol. Harga jelas, pesanan terpantau sampai tiba.
           </p>
         </div>
         <nav aria-label="Belanja">
           <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">Belanja</p>
           <ul className="mt-3 space-y-2 text-sm">
             <li><Link className="hover:underline" to="/katalog">Semua produk</Link></li>
-            <li><Link className="hover:underline" to="/katalog?kat=Kaos%20oversize">Kaos</Link></li>
-            <li><Link className="hover:underline" to="/katalog?kat=Kemeja%20kasual">Kemeja</Link></li>
-            <li><Link className="hover:underline" to="/katalog?kat=Hoodie">Hoodie</Link></li>
+            <li><Link className="hover:underline" to="/katalog?kat=Sepatu%20lari">Sepatu lari</Link></li>
+            <li><Link className="hover:underline" to="/katalog?kat=Baju%20lari">Baju lari</Link></li>
+            <li><Link className="hover:underline" to="/katalog?kat=Celana%20lari">Celana lari</Link></li>
+            <li><Link className="hover:underline" to="/katalog?kat=Gel">Gel</Link></li>
+            <li><Link className="hover:underline" to="/katalog?kat=Botol">Botol</Link></li>
           </ul>
         </nav>
         <nav aria-label="Bantuan">

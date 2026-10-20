@@ -7,9 +7,11 @@ import { DEMO_PRODUCTS } from '../data/products.demo';
 import { isDemoMode } from '../utils/format';
 
 const CATS = [
-  { label: 'Kaos', to: '/katalog?kat=Kaos%20oversize', img: '/products/ab-t002.jpg' },
-  { label: 'Kemeja', to: '/katalog?kat=Kemeja%20kasual', img: '/products/ab-k002.jpg' },
-  { label: 'Hoodie', to: '/katalog?kat=Hoodie', img: '/products/ab-h001.jpg' },
+  { label: 'Sepatu lari', to: '/katalog?kat=Sepatu%20lari', img: '/products/ab-r001.jpg' },
+  { label: 'Baju lari', to: '/katalog?kat=Baju%20lari', img: '/products/ab-b001.jpg' },
+  { label: 'Celana lari', to: '/katalog?kat=Celana%20lari', img: '/products/ab-c001.jpg' },
+  { label: 'Gel', to: '/katalog?kat=Gel', img: '/products/ab-g001.svg' },
+  { label: 'Botol', to: '/katalog?kat=Botol', img: '/products/ab-w001.jpg' },
 ];
 
 export default function Home() {
@@ -36,13 +38,13 @@ export default function Home() {
         <div className="mt-4 grid overflow-hidden rounded-3xl bg-ink-900 text-white md:grid-cols-2">
           <div className="flex flex-col justify-center p-8 sm:p-12">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-clay-200">
-              Koleksi kasual 2026
+              Koleksi lari 2026
             </p>
             <h1 className="font-display mt-3 text-3xl font-bold leading-tight sm:text-4xl">
-              Santai, rapi, pas di badan.
+              Untuk tiap kilometer.
             </h1>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-white/70">
-              Kaos oversize, kemeja kasual, dan hoodie mulai Rp129 ribu.
+              Sepatu, baju, celana, gel, dan botol lari — mulai Rp25 ribu.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
@@ -56,7 +58,7 @@ export default function Home() {
           <div className="min-h-56 md:min-h-full">
             <img
               src="/products/hero.jpg"
-              alt="Suasana rak pakaian Abibas"
+              alt="Pelari berlatih di lintasan"
               className="h-56 w-full object-cover md:h-full md:min-h-[340px]"
               onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
@@ -72,7 +74,7 @@ export default function Home() {
             Semua produk →
           </Link>
         </div>
-        <div className="mt-5 grid grid-cols-3 gap-3 sm:gap-4">
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
           {CATS.map((c) => (
             <Link key={c.label} to={c.to} className="group">
               <div className="overflow-hidden rounded-2xl bg-ink-100">
@@ -80,8 +82,8 @@ export default function Home() {
                   src={c.img}
                   alt={c.label}
                   loading="lazy"
-                  onError={(e) => { e.currentTarget.src = '/img/ab-t001.svg'; }}
-                  className="aspect-[3/4] w-full object-cover transition duration-300 group-hover:scale-[1.03] sm:aspect-[4/3]"
+                  onError={(e) => { e.currentTarget.src = '/img/placeholder.svg'; }}
+                  className="aspect-[3/4] w-full object-cover transition duration-300 group-hover:scale-[1.03]"
                 />
               </div>
               <p className="mt-2 text-sm font-semibold">{c.label}</p>
@@ -111,12 +113,12 @@ export default function Home() {
         )}
       </section>
 
-      {/* Kampanye sekunder: esensial harian */}
+      {/* Kampanye: sepatu */}
       <section className="container-store mt-14">
         <div className="relative overflow-hidden rounded-3xl">
           <img
-            src="/campaigns/campaign-street.jpg"
-            alt="Rangkaian pakaian esensial digantung rapi"
+            src="/campaigns/campaign-track.jpg"
+            alt="Pelari bersiap di starting block lintasan"
             loading="lazy"
             onError={(e) => { e.currentTarget.style.display = 'none'; }}
             className="h-72 w-full object-cover sm:h-96"
@@ -124,51 +126,57 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" aria-hidden="true" />
           <div className="absolute bottom-0 max-w-md p-6 sm:p-10">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
-              Esensial harian
+              Mulai dari 5K
             </p>
             <h2 className="font-display mt-2 text-2xl font-bold text-white sm:text-3xl">
-              Satu lemari, banyak acara.
+              Sepatu yang ikut ritmemu.
             </h2>
             <p className="mt-2 text-sm text-white/80">
-              Potongan santai yang tetap rapi untuk kampus sampai nongkrong.
+              Daily trainer, tempo, dan trail — pilih sesuai jalur latihanmu.
             </p>
             <Link
-              to="/katalog?kat=Kaos%20oversize"
+              to="/katalog?kat=Sepatu%20lari"
               className="mt-4 inline-block rounded-full bg-white px-6 py-3 text-sm font-semibold text-ink-900 hover:bg-ink-100"
             >
-              Lihat kaos
+              Lihat sepatu
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Kampanye sekunder: hoodie */}
+      {/* Kampanye: bekal lari */}
       <section className="container-store mt-6">
         <div className="grid overflow-hidden rounded-3xl bg-ink-100 md:grid-cols-2">
           <div className="order-2 flex flex-col justify-center p-8 sm:p-12 md:order-1">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-clay-500">
-              Hangat &amp; santai
+              Bekal lari
             </p>
             <h2 className="font-display mt-2 text-2xl font-bold sm:text-3xl">
-              Hoodie untuk hari yang panjang.
+              Gel dan botol untuk jarak jauh.
             </h2>
             <p className="mt-2 max-w-md text-sm leading-relaxed text-ink-500">
-              Fleece tebal dengan saku kanguru — teman perjalanan dan begadang
-              tugas.
+              Energi tiap 45 menit dan hidrasi yang gampang dijangkau — bekal
+              kecil yang bikin long run lebih tenang.
             </p>
-            <div className="mt-5">
+            <div className="mt-5 flex flex-wrap gap-3">
               <Link
-                to="/katalog?kat=Hoodie"
+                to="/katalog?kat=Gel"
                 className="rounded-full bg-ink-900 px-6 py-3 text-sm font-semibold text-white hover:bg-ink-700"
               >
-                Lihat hoodie
+                Lihat gel
+              </Link>
+              <Link
+                to="/katalog?kat=Botol"
+                className="rounded-full border border-ink-300 px-6 py-3 text-sm font-semibold text-ink-900 hover:border-ink-900"
+              >
+                Lihat botol
               </Link>
             </div>
           </div>
           <div className="order-1 md:order-2">
             <img
-              src="/campaigns/campaign-shop.jpg"
-              alt="Gaya belanja kasual dengan hoodie"
+              src="/campaigns/campaign-gear.jpg"
+              alt="Pelari membawa botol minum saat berlari"
               loading="lazy"
               onError={(e) => { e.currentTarget.style.display = 'none'; }}
               className="h-64 w-full object-cover md:h-full md:min-h-[320px]"
