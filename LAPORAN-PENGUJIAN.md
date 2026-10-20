@@ -292,3 +292,52 @@ build` lolos; `grep` memastikan **nol** sisa rujukan `SizeTable`, `sizeGuide`,
 `panduan-ukuran` adalah rute redirect). Bundle produksi `index-BsOmGqeV.js`
 tidak lagi memuat "Cara mengukur"/"Panduan ukuran"/"Lebar". URL lama tetap balas
 HTML 200 lalu dialihkan ke `/katalog` di sisi klien.
+## L. Reposisi katalog ke perlengkapan lari (20 Okt 2026)
+
+Keputusan pemilik: Abibas fokus **olahraga lari**, bukan sepak bola maupun
+pakaian kasual. Katalog diganti total: sepatu lari, baju lari, celana lari,
+gel energi, dan botol minum.
+
+### Perubahan data & model
+
+| Area | Sebelum | Sesudah |
+|---|---|---|
+| Produk | 8 SKU kaos/kemeja/hoodie | 10 SKU: 3 sepatu, 2 baju, 2 celana, 2 gel, 1 botol |
+| Ukuran | selalu S–XL | `sizeType`: `apparel` (S–XL), `shoes` (39–44), `one` (satu ukuran) |
+| Kolom stok `Products` | `stockS…stockXL` | + `sizeType`, `stock39…stock44`, `stockOne` |
+| Pemetaan kolom di GAS | nomor kolom tetap `{S:7,M:8,L:9,XL:10}` | dibaca dari **nama header** (`stockColumns`) |
+| Keranjang/pesanan | ukuran selalu ada | `size: 'ALL'` untuk gel/botol, disembunyikan di UI |
+
+`getProducts` di GAS mengembalikan `sizeType` + `stock` (objek) **dan** tetap
+`stockS…stockXL` agar frontend versi lama tetap jalan selama masa transisi.
+
+### Kode yang berubah
+
+`src/data/products.demo.js` (10 produk) · `src/utils/format.js` (`SIZE_TYPES`,
+`SIZES`, `SHOE_SIZE_CM`, `sizesFor`, `stockOf`, `totalStock`, `sizeLabel`,
+`isOneSize`) · `ProductDetail` (ukuran per keluarga + acuan cm sepatu, tanpa
+pemilih ukuran untuk gel/botol) · `Catalog` (filter ukuran 39–44, placeholder
+cari) · `Cart`/`Checkout`/`OrderDetail` (label `ALL` disembunyikan) ·
+`Home`/`Navbar`/`Footer`/`index.html` (copy & kategori lari) ·
+`apps-script/Code.gs` (`SIZE_TYPES`, `headerOf`, `stockColumns`, validasi ukuran
+per produk, decrement/restore stok dinamis, `updatedAt` dicari dari header).
+
+### Aset
+
+- 8 foto produk + hero + 2 foto kampanye dari Unsplash (lisensi & ID dicatat di
+  `public/products/SOURCES.md` dan `public/campaigns/SOURCES.md`).
+- Gel memakai placeholder SVG buatan sendiri (`ab-g001.svg`, `ab-g002.svg`,
+  tanda "?") sampai foto asli diunggah pemilik.
+- Foto kaos/kemeja/hoodie lama dihapus; `public/img/ab-*.svg` diganti satu
+  `public/img/placeholder.svg`.
+- Logo baru: `public/logo.svg` (sepatu lari + garis kecepatan di kotak ink)
+  untuk favicon/ikon dan `public/logo-mark.svg` (transparan) di navbar;
+  `public/favicon.svg` (logo ungu bawaan template, tak terpakai) dihapus.
+
+### Verifikasi di branch (mode demo, tanpa database)
+
+`npm run lint` — 5 peringatan lama, tidak ada yang baru.
+`npm run build` — lolos. `node --check` pada salinan `Code.gs` — sintaks OK.
+Belum ada pengujian database/GAS di branch ini sesuai keputusan pemilik;
+langkah tempel `Code.gs`, isi ulang tab `Products`, dan smoke test produksi
+dilakukan setelah merge ke `main`.

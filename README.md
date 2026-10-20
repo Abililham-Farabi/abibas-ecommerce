@@ -1,6 +1,6 @@
 # Abibas — Website E-Commerce (Demo Akademik)
 
-Brand pakaian kasual milik sendiri, dibangun dari PDF
+Brand perlengkapan lari milik sendiri, dibangun dari PDF
 `VPC Abibas Digital Business real.pdf` (tugas kuliah Digital Business).
 Proposisi nilai: pembeli bisa **tahu total biaya sebelum membayar, dan memantau
 pesanannya sampai tiba** (lacak pesanan bertahap).
@@ -118,9 +118,10 @@ VITE_DATA_MODE=sheets
 - **Registrasi/login**: `/register` (nama ≥ 2, email valid, password ≥ 8) →
   email duplikat harus 409 → `/login` salah password harus 401 → badge nama
   tampil → Keluar → sesi tercabut (refresh `/pesanan` redirect ke login).
-- **Checkout & stok**: tambah produk ukuran tertentu → `/checkout` → total =
-  subtotal + ongkir simulasi → buat pesanan → nomor order tampil → cek stok
-  berkurang di Sheets tab Products.
+- **Checkout & stok**: tambah sepatu ukuran 42 (atau gel tanpa ukuran) →
+  `/checkout` → total = subtotal + ongkir simulasi → buat pesanan → nomor
+  order tampil → cek stok baris & kolom ukuran yang benar berkurang di Sheets
+  tab Products.
 - **Riwayat**: `/pesanan` hanya milik akun login; buka ID pesanan orang lain
   manual → harus 404, bukan bocor.
 - **Lacak pesanan**: `/pesanan` → tile Belum Bayar/Dikemas/Dikirim/Selesai jadi

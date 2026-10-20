@@ -2,19 +2,28 @@
 
 ## Asumsi yang dipakai (ditandai eksplisit)
 
-1. **Produk & stok demo.** 8 produk dan semua stok adalah data demonstrasi,
+1. **Produk & stok demo.** 10 produk dan semua stok adalah data demonstrasi,
    struktur disamakan antara `src/data/products.demo.js`, `Code.gs`, dan Sheets.
 2. **Kebijakan penukaran demo.** Isi mengikuti PDF (gratis 1× / 7 hari / label
    utuh); memerlukan konfirmasi pemilik sebelum dipakai komersial.
 3. **Ongkir simulasi.** Reguler 15rb, Ekspres 28rb, Hemat 10rb — bukan API kurir.
 4. **Pembayaran simulasi.** Transfer/QRIS/e-wallet tidak memproses uang nyata.
-5. **Gambar ilustrasi.** Placeholder SVG lokal berlabel demo, bukan foto aktual.
-6. **Customer Profile = hipotesis.** Segmen & prioritas pain/gain adalah penilaian
+5. **Gambar ilustrasi.** Foto Unsplash + placeholder SVG berlabel demo, bukan
+   foto produk aktual.
+6. **Spesifikasi lari = ilustrasi.** Spesifikasi sepatu (busa, drop 8 mm,
+   outsole), bahan pakaian, dan kadar karbohidrat/kafein gel adalah **angka
+   demo**, bukan hasil uji laboratorium atau data pemasok. Acuan ukuran sepatu
+   (`39≈24,5 cm` … `44≈27 cm`) adalah perkiraan panjang kaki, bukan ukuran insole
+   resmi — tiap merek bisa berbeda.
+7. **Foto referensi gaya.** Foto produk diambil dari Unsplash dan sebagian
+   menampilkan merek lain (Nike, Adidas). Tidak ada klaim afiliasi; lihat
+   `public/products/SOURCES.md`.
+8. **Customer Profile = hipotesis.** Segmen & prioritas pain/gain adalah penilaian
    pemilik brand di PDF, bukan hasil survei — belum tervalidasi.
 
-> **Panduan ukuran (tabel cm / cara mengukur) sengaja dihapus** (19 Okt 2026):
-> nilai tabelnya ilustratif sehingga berisiko menyesatkan. URL lama
-> `/panduan-ukuran` kini dialihkan ke `/katalog`.
+> **Halaman Panduan ukuran dihapus** (19 Okt 2026) karena tabelnya ilustratif.
+> Untuk sepatu, acuan panjang kaki kini hanya satu baris di bawah pemilih
+> ukuran (lihat asumsi #6). URL lama `/panduan-ukuran` dialihkan ke `/katalog`.
 
 ## Keterbatasan teknis
 
@@ -38,7 +47,7 @@
 |---|---|---|---|---|
 | Beranda | Functional job, Gain 3 | Products & Services | Hero + produk pilihan + CTA | Selesai (demo) |
 | Katalog | Gain 4 | Creator 2 | Search + filter kategori/ukuran | Selesai (demo) |
-| Detail produk | Pain 1, 2, 3 | Reliever 1, 2, 3 | Ukuran+stok, tabel cm, galeri, kebijakan | Selesai (demo) |
+| Detail produk | Pain 1, 2, 3 | Reliever 1, 2, 3 | Ukuran+stok per keluarga (sepatu/baju/satu ukuran), acuan cm sepatu, kebijakan | Selesai (demo) |
 | Keranjang | Pain 4 | Reliever 4 | Rincian + subtotal | Selesai (demo) |
 | Daftar/login | Gain 4 | Creator 3 | Auth + sesi + redirect next | Selesai (demo); Sheets menunggu verifikasi |
 | Checkout | Pain 3, 4; Gain 2 | Reliever 3, 4 | Total + ongkir + bayar simulasi | Selesai (demo); Sheets menunggu verifikasi |

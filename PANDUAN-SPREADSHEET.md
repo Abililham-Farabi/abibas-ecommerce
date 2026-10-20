@@ -21,7 +21,7 @@ userId | name | email | passwordHash | createdAt
 **Tab `Products`:**
 
 ```
-productId | name | category | description | price | imageUrl | stockS | stockM | stockL | stockXL | createdAt | updatedAt
+productId | name | category | description | price | imageUrl | sizeType | stockS | stockM | stockL | stockXL | stock39 | stock40 | stock41 | stock42 | stock43 | stock44 | stockOne | createdAt | updatedAt
 ```
 
 **Tab `Orders`:**
@@ -53,7 +53,8 @@ Setelah header terisi: blok baris 1 → **View → Freeze → 1 row**, lalu bold
 | Kolom | Format |
 |---|---|
 | `price, shippingCost, subtotal, total, unitPrice` | **Format → Number → Number** (angka murni, mis. `129000`, tanpa `Rp`/titik) |
-| `stockS/M/L/XL, quantity` | **Number**, 0 desimal |
+| `stockS…stockXL, stock39…stock44, stockOne, quantity` | **Number**, 0 desimal |
+| `sizeType` (tab `Products`) | Plain text: `apparel`, `shoes`, atau `one` |
 | `createdAt, updatedAt, expiresAt, revokedAt` | **Plain text** (diisi string ISO oleh sistem, mis. `2026-10-15T00:00:00.000Z`) |
 | `paidAt, packedAt, shippedAt, doneAt` (tab `Orders`) | **Plain text** (opsional; cap waktu tahap lacak pesanan, diisi `Code.gs`) |
 | `phone` (tab `Orders`) | Disarankan **Plain text**; `Code.gs` juga sudah memaksa sel ini berformat teks saat checkout, sehingga `0`/`+` di depan tetap utuh apa pun format kolomnya. (Mengubah format kolom saja tidak cukup — nilai tetap diparse Sheets sebagai angka.) |
@@ -62,23 +63,62 @@ Setelah header terisi: blok baris 1 → **View → Freeze → 1 row**, lalu bold
 ## 4. Data awal
 
 - `Users`, `Orders`, `OrderItems`, `Sessions`: **kosongkan** (hanya header). Diisi otomatis saat register/login/checkout.
-- `Products`: isi 8 baris demo (harga dikunci sesuai PDF VPC):
+- `Products`: isi 10 baris demo di bawah. **Cara tercepat:** klik sel `A2`,
+  lalu tempel blok tab-separated ini (Sheets otomatis memecah per kolom —
+  jangan pakai "Paste special → values only" dari tabel web).
 
-| productId | name | category | price | stockS | stockM | stockL | stockXL |
-|---|---|---:|---|---|---|---|---|
-| AB-T001 | Kaos Oversize Hitam Essential | Kaos oversize | 129000 | 10 | 12 | 8 | 5 |
-| AB-T002 | Kaos Oversize Putih Essential | Kaos oversize | 129000 | 8 | 10 | 10 | 6 |
-| AB-T003 | Kaos Oversize Sage Lapang | Kaos oversize | 129000 | 0 | 7 | 9 | 4 |
-| AB-K001 | Kemeja Kasual Linen Cream | Kemeja kasual | 189000 | 6 | 8 | 8 | 3 |
-| AB-K002 | Kemeja Kasual Oxford Navy | Kemeja kasual | 189000 | 5 | 6 | 7 | 2 |
-| AB-K003 | Kemeja Kasual Flanel Cokelat | Kemeja kasual | 189000 | 4 | 5 | 0 | 3 |
-| AB-H001 | Hoodie Fleece Abu Muda | Hoodie | 249000 | 7 | 9 | 6 | 4 |
-| AB-H002 | Hoodie Fleece Hitam Pekat | Hoodie | 249000 | 6 | 8 | 5 | 5 |
+```
+productId	name	category	description	price	imageUrl	sizeType	stockS	stockM	stockL	stockXL	stock39	stock40	stock41	stock42	stock43	stock44	stockOne	createdAt	updatedAt
+AB-R001	Sepatu Lari Daily Trainer	Sepatu lari	Sepatu lari harian dengan busa responsif dan upper knit. Nyaman untuk 5–10 km di aspal.	549000	/products/ab-r001.jpg	shoes					3	5	6	6	4	2			
+AB-R002	Sepatu Lari Tempo Ringan	Sepatu lari	Sepatu ringan untuk sesi tempo dan interval. Drop 8 mm, outsole tipis agar kaki tetap dekat ke jalan.	749000	/products/ab-r002.jpg	shoes					2	3	4	5	3	1			
+AB-R003	Sepatu Lari Trail	Sepatu lari	Sepatu trail dengan outsole bergerigi untuk jalur berbatu dan tanah. Upper lebih tebal dengan toe cap.	829000	/products/ab-r003.jpg	shoes					1	2	3	2	2	0			
+AB-B001	Kaos Lari Dry-Fit Hitam	Baju lari	Kaos lari dry-fit yang cepat kering dengan potongan regular. Cocok untuk sesi pagi dan lari santai.	179000	/products/ab-b001.jpg	apparel	6	9	8	5									
+AB-B002	Singlet Lari Mesh	Baju lari	Singlet mesh dengan panel ventilasi di punggung. Ringan dan tidak lengket saat berkeringat.	159000	/products/ab-b002.jpg	apparel	4	6	7	3									
+AB-C001	Celana Lari 5" Hitam	Celana lari	Celana lari 5 inci dengan liner dan saku belakang berzip untuk kunci. Tidak mengganggu ayunan kaki.	199000	/products/ab-c001.jpg	apparel	5	8	7	4									
+AB-C002	Tights Lari Panjang	Celana lari	Tights panjang dengan kompresi ringan. Ada saku paha untuk ponsel dan gel.	249000	/products/ab-c002.jpg	apparel	3	5	6	2									
+AB-G001	Energy Gel Jeruk 30 g	Gel	Gel energi 30 g dengan 22 g karbohidrat, rasa jeruk. Dimakan 15–20 menit sebelum atau saat lari jauh.	25000	/products/ab-g001.svg	one											40		
+AB-G002	Energy Gel Kopi 30 g	Gel	Gel energi rasa kopi dengan kafein 40 mg per sachet. Untuk sesi panjang atau lari pagi.	25000	/products/ab-g002.svg	one											35		
+AB-W001	Botol Lari 500 ml	Botol	Botol lari 500 ml dengan tutup bite valve dan pegangan tangan. Muat di sabuk lari.	89000	/products/ab-w001.jpg	one											12		
+```
 
-- `description`: tulis singkat + bahan + tinggi model, contoh:
-  `Kaos oversize katun combed 24s. Model 175 cm memakai ukuran M.`
-- `imageUrl`: `/products/ab-t001.jpg` … `/products/ab-h002.jpg` (foto referensi lokal, lihat `public/products/SOURCES.md`).
-- `createdAt/updatedAt`: tanggal hari ini format ISO.
+- `sizeType` menentukan kolom stok mana yang dipakai:
+
+  | `sizeType` | Ukuran yang dijual | Kolom stok terisi |
+  |---|---|---|
+  | `shoes` | 39–44 | `stock39` … `stock44` |
+  | `apparel` | S, M, L, XL | `stockS` … `stockXL` |
+  | `one` | satu ukuran (gel, botol) | `stockOne` (dibaca sistem sebagai ukuran `ALL`) |
+
+  Kolom stok yang tidak dipakai **biarkan kosong** — jangan diisi `0`, agar
+  tidak bingung saat mengecek stok.
+- `description`: tulis singkat + kegunaan, contoh:
+  `Sepatu lari harian dengan busa responsif. Nyaman untuk 5–10 km di aspal.`
+- `imageUrl`: `/products/ab-r001.jpg` … `/products/ab-w001.jpg`; gel memakai
+  placeholder SVG `/products/ab-g001.svg` sampai foto asli tersedia (lihat
+  `public/products/SOURCES.md`).
+- `createdAt/updatedAt`: **boleh kosong**. Sistem mengisi `updatedAt` sendiri
+  saat stok produk berubah.
+
+### 4b. Kalau spreadsheet sudah berisi data versi lama (pakaian kasual)
+
+Tab `Products` versi lama hanya punya `stockS…stockXL` dan 8 baris kaos/kemeja/
+hoodie. Dua cara, pilih salah satu:
+
+**A. Mulai bersih (disarankan untuk demo).**
+1. Blok `A2` sampai baris terakhir kolom `updatedAt` → hapus isinya.
+2. Ganti baris header dengan header baru di §2 (ada `sizeType` + 8 kolom stok).
+3. Tempel TSV di §4 mulai sel `A2`.
+
+**B. Pertahankan baris lama.**
+1. Sisipkan **1 kolom** setelah `imageUrl` → beri nama `sizeType`.
+2. Sisipkan **7 kolom** sebelum `createdAt` → beri nama `stock39`, `stock40`,
+   `stock41`, `stock42`, `stock43`, `stock44`, `stockOne`.
+3. Isi `sizeType` baris lama dengan `apparel` (kolom stoknya sudah terisi).
+4. Tambahkan 10 baris produk lari dari TSV §4 di bawah baris lama.
+
+> Pesanan lama di `Orders`/`OrderItems` **tidak perlu diubah**: nama & harga
+> produk disimpan sebagai snapshot saat checkout, jadi riwayat tetap terbaca
+> walau produknya sudah tidak dijual.
 
 ## 5. Pengaman ringan
 
