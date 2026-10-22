@@ -145,6 +145,8 @@ function route(action, p) {
       return { user: createUser(p) };
     case 'getProducts':
       return { products: getProducts() };
+    case 'updateProductMeta':
+      return { product: updateProductMeta(p) };
     case 'createSession':
       return { session: createSession(p) };
     case 'getSession':
@@ -339,6 +341,40 @@ function productMap(fresh) {
   var m = {};
   for (var i = 0; i < list.length; i++) m[list[i].productId] = list[i];
   return m;
+}
+
+/**
+ * Mengubah metadata produk (bukan stok). Dipakai untuk koreksi nama/foto tanpa
+ * membuka spreadsheet. Stok tetap hanya boleh berubah lewat alur pesanan.
+ */
+function updateProductMeta(p) {
+  if (!p.productId) fail('productId wajib diisi.', 400);
+  var fields = p.fields || {};
+  var allowed = ['name', 'category', 'description', 'imageUrl'];
+  var keys = Object.keys(fields);
+  if (keys.length === 0) fail('Tidak ada field yang diubah.', 400);
+
+  var header = headerOf(SHEETS.Products);
+  var sh = sheet(SHEETS.Products);
+  var row = findProductRowIndex(p.productId);
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    if (allowed.indexOf(key) < 0) fail('Field tidak boleh diubah: ' + key, 400);
+    var col = header.indexOf(key) + 1;
+    if (col < 1) fail('Kolom tidak ditemukan: ' + key, 500);
+    var value = String(fields[key] == null ? '' : fields[key]).trim();
+    if (!value) fail('Nilai ' + key + ' tidak boleh kosong.', 400);
+    sh.getRange(row, col).setValue(value);
+  }
+  var updCol = header.indexOf('updatedAt') + 1;
+  if (updCol > 0) sh.getRange(row, updCol).setValue(new Date().toISOString());
+
+  invalidateProductsCache();
+  var list = getProductsFresh();
+  for (var j = 0; j < list.length; j++) {
+    if (String(list[j].productId) === String(p.productId)) return list[j];
+  }
+  return null;
 }
 
 /* ---------- orders ---------- */

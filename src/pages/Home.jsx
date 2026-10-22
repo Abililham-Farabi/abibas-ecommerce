@@ -7,7 +7,7 @@ const CATS = [
   { label: 'Sepatu lari', to: '/katalog?kat=Sepatu%20lari', img: '/products/ab-r001.jpg' },
   { label: 'Baju lari', to: '/katalog?kat=Baju%20lari', img: '/products/ab-b001.jpg' },
   { label: 'Celana lari', to: '/katalog?kat=Celana%20lari', img: '/products/ab-c001.jpg' },
-  { label: 'Gel', to: '/katalog?kat=Gel', img: '/products/ab-g001.svg' },
+  { label: 'Gel', to: '/katalog?kat=Gel', img: '/products/ab-g001.jpg' },
   { label: 'Botol', to: '/katalog?kat=Botol', img: '/products/ab-w001.jpg' },
 ];
 

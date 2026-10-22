@@ -11,7 +11,7 @@ Lihat `https://unsplash.com/license`.
 
 ## Daftar file
 
-| File lokal | ID foto Unsplash | Peruntukan |
+| File lokal | Sumber | Peruntukan |
 |---|---|---|
 | `ab-r001.jpg` | `photo-1542291026-7eec264c27ff` | Sepatu Lari Daily Trainer |
 | `ab-r002.jpg` | `photo-1571008887538-b36bb32f4571` | Sepatu Lari Tempo Ringan |
@@ -20,16 +20,19 @@ Lihat `https://unsplash.com/license`.
 | `ab-b002.jpg` | `photo-1562771379-eafdca7a02f8` | Singlet Lari Mesh |
 | `ab-c001.jpg` | `photo-1766970096346-937852c7d350` | Celana Lari 5" |
 | `ab-c002.jpg` | `photo-1585358421245-141814264f68` | Tights Lari Panjang |
+| `ab-g001.jpg` | Foto pemilik proyek (22 Okt 2026) | Energy Gel |
+| `ab-g002.jpg` | Foto pemilik proyek (22 Okt 2026) | Energy Gel Plus |
 | `ab-w001.jpg` | `photo-1602143407151-7111542de6e8` | Botol Lari 500 ml |
 | `hero.jpg` | `photo-1552674605-db6ffd4facb5` | Hero beranda (pelari saat matahari terbit) |
 
-Gel (`ab-g001.svg`, `ab-g002.svg`) **bukan foto**: itu placeholder buatan
-sendiri (SVG, monokrom + aksen) sampai foto produk asli tersedia.
+Dua foto gel adalah **foto milik pemilik proyek**, bukan dari Unsplash. Foto
+ini menampilkan kemasan merek lain (SiS, Maurten) sebagai referensi gaya;
+placeholder SVG lama (`ab-g001.svg`, `ab-g002.svg`) disimpan sebagai cadangan.
 
 ## Kejujuran visual
 
 Foto-foto ini adalah **foto referensi gaya (ilustrasi)** — bukan foto produk
-aktual Abibas, dan sebagian menampilkan merek lain (Nike, Adidas). Warna,
+aktual Abibas, dan sebagian menampilkan merek lain (Nike, Adidas, SiS, Maurten). Warna,
 model, dan detail bisa berbeda dari barang demo. Keterangan ini disampaikan
 secara halus di halaman produk ("Foto referensi gaya — bukan foto produk
 aktual").
