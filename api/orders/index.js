@@ -1,5 +1,7 @@
 import {
   callGas,
+  hashToken,
+  parseCookies,
   readBody,
   requireSession,
   sendError,
@@ -18,12 +20,20 @@ const SIZES = [
 
 export default async function handler(req, res) {
   try {
-    const { user } = await requireSession(req);
-
+    // GET: sesi + daftar pesanan dalam satu panggilan GAS (hemat 1 eksekusi).
     if (req.method === 'GET') {
-      const data = await callGas('getOrdersByUser', { userId: user.userId });
-      return sendJson(res, 200, { orders: data.orders || [] });
+      const { abibas_session: token } = parseCookies(req);
+      if (!token) {
+        return sendJson(res, 401, { error: 'Sesi tidak ditemukan. Silakan masuk.' });
+      }
+      const data = await callGas('getOrdersWithSession', { tokenHash: hashToken(token) });
+      if (!data?.session || !data?.user) {
+        return sendJson(res, 401, { error: 'Sesi kedaluwarsa. Silakan masuk ulang.' });
+      }
+      return sendJson(res, 200, { orders: data.orders || [], user: data.user });
     }
+
+    const { user } = await requireSession(req);
 
     if (req.method === 'POST') {
       const { items, recipientName, phone, address, courier, paymentMethod } =

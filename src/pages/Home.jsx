@@ -1,10 +1,7 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { Alert } from '../components/ui';
-import { api } from '../api/client';
-import { DEMO_PRODUCTS } from '../data/products.demo';
-import { isDemoMode } from '../utils/format';
+import { useProducts } from '../hooks/useProducts';
 
 const CATS = [
   { label: 'Sepatu lari', to: '/katalog?kat=Sepatu%20lari', img: '/products/ab-r001.jpg' },
@@ -15,19 +12,7 @@ const CATS = [
 ];
 
 export default function Home() {
-  const [products, setProducts] = useState(DEMO_PRODUCTS);
-  const [loadError, setLoadError] = useState('');
-
-  useEffect(() => {
-    if (isDemoMode()) return;
-    api
-      .getProducts()
-      .then((d) => setProducts(d.products))
-      .catch((e) => {
-        setProducts([]);
-        setLoadError(e.message || 'Gagal memuat produk dari database.');
-      });
-  }, []);
+  const { products, error: loadError } = useProducts();
 
   const featured = products.slice(0, 4);
 
@@ -59,6 +44,11 @@ export default function Home() {
             <img
               src="/products/hero.jpg"
               alt="Pelari berlatih di lintasan"
+              width="1200"
+              height="900"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
               className="h-56 w-full object-cover md:h-full md:min-h-[340px]"
               onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
@@ -81,7 +71,10 @@ export default function Home() {
                 <img
                   src={c.img}
                   alt={c.label}
+                  width="900"
+                  height="1200"
                   loading="lazy"
+                  decoding="async"
                   onError={(e) => { e.currentTarget.src = '/img/placeholder.svg'; }}
                   className="aspect-[3/4] w-full object-cover transition duration-300 group-hover:scale-[1.03]"
                 />
@@ -119,7 +112,10 @@ export default function Home() {
           <img
             src="/campaigns/campaign-track.jpg"
             alt="Pelari bersiap di starting block lintasan"
+            width="1200"
+            height="675"
             loading="lazy"
+            decoding="async"
             onError={(e) => { e.currentTarget.style.display = 'none'; }}
             className="h-72 w-full object-cover sm:h-96"
           />
@@ -177,7 +173,10 @@ export default function Home() {
             <img
               src="/campaigns/campaign-gear.jpg"
               alt="Pelari membawa botol minum saat berlari"
+              width="1200"
+              height="675"
               loading="lazy"
+              decoding="async"
               onError={(e) => { e.currentTarget.style.display = 'none'; }}
               className="h-64 w-full object-cover md:h-full md:min-h-[320px]"
             />

@@ -67,11 +67,12 @@ export async function callGas(action, payload = {}) {
   }
 }
 
-export function sendJson(res, status, obj) {
+export function sendJson(res, status, obj, { cacheControl = 'no-store, max-age=0' } = {}) {
   res.status(status).setHeader('Content-Type', 'application/json');
   // Data di balik /api/* bergantung sesi (pesanan, profil) — jangan pernah
   // disimpan di cache browser/CDN, dan jangan dipulihkan basi oleh bfcache.
-  res.setHeader('Cache-Control', 'no-store, max-age=0');
+  // Pengecualian: katalog publik (/api/products) memakai cacheControl sendiri.
+  res.setHeader('Cache-Control', cacheControl);
   res.end(JSON.stringify(obj));
 }
 

@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Alert, StatusChip, StatusIcon } from '../components/ui';
 import { api } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import {
   ORDER_ACTIONS,
   ORDER_TILES,
@@ -11,6 +12,8 @@ import {
   nextOrderStatus,
 } from '../utils/format';
 
+const CACHE_PREFIX = 'abibas_orders_cache_v1:';
+
 function readDemoOrders() {
   try {
     return JSON.parse(localStorage.getItem('abibas_demo_orders_v1') || '[]');
@@ -19,41 +22,78 @@ function readDemoOrders() {
   }
 }
 
+function readCached(key) {
+  try {
+    const parsed = JSON.parse(sessionStorage.getItem(key) || 'null');
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCached(key, orders) {
+  try {
+    sessionStorage.setItem(key, JSON.stringify(orders));
+  } catch {
+    /* kuota penuh: abaikan */
+  }
+}
+
 export default function Orders() {
-  const [orders, setOrders] = useState([]);
+  const { user } = useAuth();
+  const cacheKey = user ? `${CACHE_PREFIX}${user.userId}` : '';
+  const [cachedOrders] = useState(() => (cacheKey ? readCached(cacheKey) : null));
+  const [orders, setOrders] = useState(() => cachedOrders || []);
   const [tab, setTab] = useState('semua');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !cachedOrders);
+  const lastLoad = useRef(0);
 
-  const load = useCallback(() => {
-    if (isDemoMode()) {
-      setOrders(readDemoOrders());
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    api
-      .getOrders()
-      .then((d) => {
-        setOrders(d.orders || []);
-        setError('');
-      })
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
-  }, []);
+  const load = useCallback(
+    ({ silent = false } = {}) => {
+      if (isDemoMode()) {
+        setOrders(readDemoOrders());
+        setLoading(false);
+        lastLoad.current = Date.now();
+        return;
+      }
+      if (!silent) setLoading(true);
+      return api
+        .getOrders()
+        .then((d) => {
+          setOrders(d.orders || []);
+          if (cacheKey) writeCached(cacheKey, d.orders || []);
+          setError('');
+          lastLoad.current = Date.now();
+        })
+        .catch((e) => setError(e.message))
+        .finally(() => setLoading(false));
+    },
+    [cacheKey],
+  );
 
+  // Salinan terakhir sudah dipakai sebagai state awal (lihat cachedOrders);
+  // data segar menyusul di belakang.
   useEffect(() => {
-    load();
+    // Ditunda satu tick agar StrictMode tidak menembak dua permintaan dan
+    // salinan cache sempat tampil lebih dulu.
+    const timer = window.setTimeout(load, 0);
     // Safari memulihkan halaman dari cache (bfcache) tanpa menjalankan ulang
-    // komponen — muat ulang saat halaman kembali aktif agar tidak basi.
-    function onResume() {
-      if (document.visibilityState !== 'hidden') load();
+    // komponen — muat ulang hanya saat benar-benar dipulihkan.
+    function onPageShow(event) {
+      if (event.persisted) load({ silent: true });
     }
-    window.addEventListener('pageshow', onResume);
-    document.addEventListener('visibilitychange', onResume);
+    function onVisible() {
+      if (document.visibilityState !== 'visible') return;
+      if (Date.now() - lastLoad.current < 30000) return;
+      load({ silent: true });
+    }
+    window.addEventListener('pageshow', onPageShow);
+    document.addEventListener('visibilitychange', onVisible);
     return () => {
-      window.removeEventListener('pageshow', onResume);
-      document.removeEventListener('visibilitychange', onResume);
+      window.clearTimeout(timer);
+      window.removeEventListener('pageshow', onPageShow);
+      document.removeEventListener('visibilitychange', onVisible);
     };
   }, [load]);
 

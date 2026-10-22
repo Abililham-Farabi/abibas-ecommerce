@@ -30,6 +30,12 @@ var SHEETS = {
 var COURIER_COST = { reguler: 15000, ekspres: 28000, hemat: 10000 };
 var PAYMENTS = ['transfer', 'qris', 'ewallet'];
 
+// Cache daftar produk untuk memangkas waktu baca sheet (~1,5 dtk -> ~0,2 dtk).
+// Setiap penulisan stok WAJIB memanggil invalidateProductsCache(), dan
+// checkout selalu membaca stok langsung dari sheet (bukan cache).
+var PRODUCTS_CACHE_KEY = 'products:v1';
+var PRODUCTS_CACHE_TTL = 30;
+
 // Keluarga ukuran. Harus sama dengan SIZE_TYPES di src/utils/format.js.
 var SIZE_TYPES = {
   apparel: ['S', 'M', 'L', 'XL'],
@@ -143,6 +149,10 @@ function route(action, p) {
       return { session: createSession(p) };
     case 'getSession':
       return getSessionWithUser(p.tokenHash);
+    case 'getOrdersWithSession':
+      return getOrdersWithSession(p.tokenHash);
+    case 'getOrderWithSession':
+      return getOrderWithSession(p.tokenHash, p.orderId);
     case 'revokeSession':
       return { revoked: revokeSession(p.tokenHash) };
     case 'getOrdersByUser':
@@ -227,6 +237,25 @@ function getSessionWithUser(tokenHash) {
   return { session: null, user: null };
 }
 
+// Sesi + daftar pesanan dalam SATU eksekusi (hemat ~1,5–2 dtk per halaman).
+// Mengembalikan session/user null bila token tidak valid, agar Vercel bisa
+// membalas 401 tanpa panggilan tambahan.
+function getOrdersWithSession(tokenHash) {
+  var s = getSessionWithUser(tokenHash);
+  if (!s.session || !s.user) return { session: null, user: null, orders: [] };
+  return { session: s.session, user: s.user, orders: getOrdersByUser(s.user.userId) };
+}
+
+function getOrderWithSession(tokenHash, orderId) {
+  var s = getSessionWithUser(tokenHash);
+  if (!s.session || !s.user) return { session: null, user: null, order: null };
+  return {
+    session: s.session,
+    user: s.user,
+    order: getOrderWithItems(String(orderId || ''), s.user.userId),
+  };
+}
+
 function revokeSession(tokenHash) {
   var r = rows(SHEETS.Sessions);
   for (var i = 0; i < r.data.length; i++) {
@@ -240,7 +269,23 @@ function revokeSession(tokenHash) {
 
 /* ---------- products ---------- */
 
-function getProducts() {
+function productsCache() {
+  try {
+    return CacheService.getScriptCache();
+  } catch (e) {
+    return null;
+  }
+}
+
+function invalidateProductsCache() {
+  var cache = productsCache();
+  if (!cache) return;
+  try {
+    cache.remove(PRODUCTS_CACHE_KEY);
+  } catch (e) { /* abaikan */ }
+}
+
+function getProductsFresh() {
   var r = rows(SHEETS.Products);
   var cols = stockColumns(r.header);
   var out = [];
@@ -272,8 +317,25 @@ function getProducts() {
   return out;
 }
 
-function productMap() {
-  var list = getProducts();
+function getProducts() {
+  var cache = productsCache();
+  if (cache) {
+    try {
+      var hit = cache.get(PRODUCTS_CACHE_KEY);
+      if (hit) return JSON.parse(hit);
+    } catch (e) { /* cache rusak/berubah format: baca ulang dari sheet */ }
+  }
+  var list = getProductsFresh();
+  if (cache) {
+    try {
+      cache.put(PRODUCTS_CACHE_KEY, JSON.stringify(list), PRODUCTS_CACHE_TTL);
+    } catch (e) { /* cache penuh: tetap jalan tanpa cache */ }
+  }
+  return list;
+}
+
+function productMap(fresh) {
+  var list = fresh ? getProductsFresh() : getProducts();
   var m = {};
   for (var i = 0; i < list.length; i++) m[list[i].productId] = list[i];
   return m;
@@ -470,7 +532,7 @@ function createOrderAtomic(p) {
     if (!(p.courier in COURIER_COST)) fail('Kurir tidak valid.', 400);
     if (PAYMENTS.indexOf(p.paymentMethod) < 0) fail('Metode pembayaran tidak valid.', 400);
 
-    var catalog = productMap();
+    var catalog = productMap(true);
     var subtotal = 0;
     var lines = [];
     for (var i = 0; i < p.items.length; i++) {
@@ -570,6 +632,7 @@ function createOrderAtomic(p) {
       cell.setValue(next);
       if (updCol > 0) shProd.getRange(D.rowIndex, updCol).setValue(now);
     }
+    invalidateProductsCache();
 
     return getOrderWithItems(orderId, p.userId);
   } finally {
@@ -650,6 +713,7 @@ function cleanupTestData(p) {
       if (item.updatedAt && resetUpdCol > 0) shProd.getRange(row, resetUpdCol).setValue(item.updatedAt);
       result.products.push(item.productId + '/' + item.size + '=' + item.value);
     }
+    if (resets.length > 0) invalidateProductsCache();
     return result;
   } finally {
     try { lock.releaseLock(); } catch (e) { /* abaikan */ }

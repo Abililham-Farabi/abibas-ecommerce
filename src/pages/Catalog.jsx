@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { Modal, Alert } from '../components/ui';
-import { api } from '../api/client';
-import { CATEGORIES, DEMO_PRODUCTS } from '../data/products.demo';
-import { isDemoMode, SIZES, stockOf } from '../utils/format';
+import { useProducts } from '../hooks/useProducts';
+import { CATEGORIES } from '../data/products.demo';
+import { SIZES, stockOf } from '../utils/format';
 
 const SORTS = [
   { id: 'relevansi', label: 'Relevansi' },
@@ -15,27 +15,13 @@ const SORTS = [
 
 export default function Catalog() {
   const [params, setParams] = useSearchParams();
-  const [products, setProducts] = useState(DEMO_PRODUCTS);
-  const [loading, setLoading] = useState(!isDemoMode());
-  const [loadError, setLoadError] = useState('');
+  const { products, loading, error: loadError } = useProducts();
   const [drawer, setDrawer] = useState(false);
 
   const q = params.get('q') || '';
   const kat = params.get('kat') || 'Semua';
   const size = params.get('size') || 'Semua';
   const sort = params.get('sort') || 'relevansi';
-
-  useEffect(() => {
-    if (isDemoMode()) return;
-    api
-      .getProducts()
-      .then((d) => setProducts(d.products))
-      .catch((e) => {
-        setProducts([]);
-        setLoadError(e.message || 'Gagal memuat produk dari database.');
-      })
-      .finally(() => setLoading(false));
-  }, []);
 
   function set(key, value, clear = false) {
     const next = clear ? new URLSearchParams() : new URLSearchParams(params);
@@ -193,7 +179,7 @@ export default function Catalog() {
             </div>
           ))}
         </div>
-      ) : loadError ? (
+      ) : loadError && products.length === 0 ? (
         <div className="mt-8">
           <Alert>{loadError}</Alert>
         </div>

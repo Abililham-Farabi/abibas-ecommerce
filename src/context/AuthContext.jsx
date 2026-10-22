@@ -4,11 +4,50 @@ import { isDemoMode } from '../utils/format';
 
 const AuthContext = createContext(null);
 const DEMO_KEY = 'abibas_demo_user_v1';
+// Petunjuk sesi untuk UI (bukan autentikasi): memungkinkan halaman dilukis
+// lebih dulu saat reload, lalu divalidasi ke server lewat /api/me.
+const HINT_KEY = 'abibas_auth_hint_v1';
+const ORDERS_CACHE_PREFIX = 'abibas_orders_cache_v1:';
+
+function readHint() {
+  try {
+    const raw = localStorage.getItem(HINT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveHint(user) {
+  try {
+    localStorage.setItem(HINT_KEY, JSON.stringify(user));
+  } catch {
+    /* abaikan */
+  }
+}
+
+function clearHint() {
+  try {
+    localStorage.removeItem(HINT_KEY);
+  } catch {
+    /* abaikan */
+  }
+}
+
+function clearOrderCaches() {
+  try {
+    Object.keys(sessionStorage)
+      .filter((key) => key.startsWith(ORDERS_CACHE_PREFIX))
+      .forEach((key) => sessionStorage.removeItem(key));
+  } catch {
+    /* abaikan */
+  }
+}
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
   const demo = isDemoMode();
+  const [user, setUser] = useState(() => (demo ? null : readHint()));
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -25,9 +64,15 @@ export function AuthProvider({ children }) {
       }
       try {
         const data = await api.me();
-        if (!cancelled) setUser(data.user);
+        if (!cancelled) {
+          setUser(data.user);
+          saveHint(data.user);
+        }
       } catch {
-        if (!cancelled) setUser(null);
+        if (!cancelled) {
+          setUser(null);
+          clearHint();
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -58,6 +103,7 @@ export function AuthProvider({ children }) {
         }
         const data = await api.register({ name, email, password });
         setUser(data.user);
+        saveHint(data.user);
         return data.user;
       },
       async login({ email, password }) {
@@ -73,17 +119,21 @@ export function AuthProvider({ children }) {
         }
         const data = await api.login({ email, password });
         setUser(data.user);
+        saveHint(data.user);
         return data.user;
       },
       async logout() {
         if (demo) {
           localStorage.removeItem(DEMO_KEY);
+          clearOrderCaches();
           setUser(null);
           return;
         }
         try {
           await api.logout();
         } finally {
+          clearHint();
+          clearOrderCaches();
           setUser(null);
         }
       },

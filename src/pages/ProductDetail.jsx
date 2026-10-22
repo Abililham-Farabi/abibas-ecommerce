@@ -1,13 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Alert, QtyStepper } from '../components/ui';
-import { api } from '../api/client';
 import { useCart } from '../context/CartContext';
 import { DEMO_PRODUCTS } from '../data/products.demo';
 import { EXCHANGE_POLICY_SHORT } from '../data/couriers';
+import { useProducts } from '../hooks/useProducts';
 import {
   formatRupiah,
-  isDemoMode,
   isOneSize,
   SHOE_SIZE_CM,
   sizesFor,
@@ -21,51 +20,55 @@ function initialSize(product) {
 export default function ProductDetail() {
   const { id } = useParams();
   const { addItem } = useCart();
-  const [product, setProduct] = useState(() =>
-    DEMO_PRODUCTS.find((p) => p.productId === id),
+  const { products, error: loadError } = useProducts();
+  const product = useMemo(
+    () =>
+      products.find((p) => p.productId === id) ||
+      DEMO_PRODUCTS.find((p) => p.productId === id),
+    [products, id],
   );
+  const oneSize = isOneSize(product);
+  const sizes = sizesFor(product);
   const [size, setSize] = useState(() =>
     initialSize(DEMO_PRODUCTS.find((p) => p.productId === id)),
   );
   const [qty, setQty] = useState(1);
   const [notice, setNotice] = useState('');
   const [added, setAdded] = useState(false);
-  const [error, setError] = useState('');
+  const [prevId, setPrevId] = useState(id);
 
-  useEffect(() => {
-    const local = DEMO_PRODUCTS.find((p) => p.productId === id);
-    setProduct(local);
-    setSize(initialSize(local));
+  // Ganti produk = mulai dari pilihan awal; diterapkan saat render agar tidak
+  // sempat menampilkan ukuran/qty milik produk sebelumnya.
+  if (prevId !== id) {
+    setPrevId(id);
+    setSize(initialSize(DEMO_PRODUCTS.find((p) => p.productId === id)));
     setQty(1);
     setNotice('');
-    setError('');
-    if (isDemoMode()) return;
-    api
-      .getProducts()
-      .then((d) => {
-        const found = d.products.find((p) => p.productId === id);
-        if (found) {
-          setProduct(found);
-          setSize(initialSize(found));
-        } else setError('Produk tidak ditemukan.');
-      })
-      .catch((e) => setError(e.message));
-  }, [id]);
+    setAdded(false);
+  }
 
-  const oneSize = isOneSize(product);
-  const sizes = sizesFor(product);
-  const activeSize = oneSize ? 'ALL' : size;
+  const missing = products.length > 0 && !products.some((p) => p.productId === id);
+
+  // Stok bisa berbeda dari data demo: bila ukuran terpilih habis, ukuran
+  // efektif dikosongkan agar pengguna memilih ulang.
+  const activeSize = oneSize
+    ? 'ALL'
+    : size && stockOf(product, size) > 0
+      ? size
+      : '';
 
   const maxQty = useMemo(
     () => (product && activeSize ? stockOf(product, activeSize) : 0),
     [product, activeSize],
   );
 
-  if (error) {
+  if (missing || (!product && loadError)) {
     return (
       <div className="container-store py-16 text-center">
         <p className="font-semibold">Produk tidak ditemukan</p>
-        <p className="mt-1 text-sm text-ink-500">{error}</p>
+        <p className="mt-1 text-sm text-ink-500">
+          {loadError || 'Produk ini tidak ada di katalog.'}
+        </p>
         <Link to="/katalog" className="btn-secondary mt-6">Kembali ke katalog</Link>
       </div>
     );
@@ -105,6 +108,10 @@ export default function ProductDetail() {
             <img
               src={product.imageUrl}
               alt={product.name}
+              width="900"
+              height="1200"
+              fetchPriority="high"
+              decoding="async"
               className="aspect-[3/4] w-full object-cover"
               onError={(e) => { e.currentTarget.src = '/img/placeholder.svg'; }}
             />

@@ -18,7 +18,10 @@ export default function ProductCard({ product }) {
         <img
           src={product.imageUrl}
           alt={product.name}
+          width="900"
+          height="1200"
           loading="lazy"
+          decoding="async"
           onError={fallback}
           className="aspect-[3/4] w-full object-cover transition duration-300 group-hover:scale-[1.03]"
         />
