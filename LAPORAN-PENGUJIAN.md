@@ -370,3 +370,77 @@ pemilik tidak disentuh (penghapusan hanya berdasarkan email/orderId uji).
 
 Catatan: dua produk yang sempat dipesan kini punya `updatedAt` terisi —
 nilainya benar (waktu stok terakhir berubah), bukan data uji yang tertinggal.
+
+## N. Optimasi kecepatan katalog & lacak pesanan (22 Okt 2026)
+
+Keluhan: halaman katalog dan "lacak pesanan" terasa lambat. Penyebab utama
+bukan beratnya halaman, melainkan setiap kunjungan menunggu Apps Script
+(1,5–2,1 dtk per eksekusi) dan `Orders` memakai tiga eksekusi berantai.
+
+### Perubahan
+
+- **GAS v12** (`apps-script/Code.gs`): `getProducts` memakai `CacheService`
+  (30 dtk) dengan `invalidateProductsCache()` setiap stok berubah;
+  `productMap(true)` tetap membaca sheet langsung saat checkout (anti-oversell).
+  Aksi baru `getOrdersWithSession` dan `getOrderWithSession` menggabungkan
+  validasi sesi + data pesanan dalam satu eksekusi.
+- **Vercel Functions**: `/api/products` memakai cache memori 30 dtk + header
+  `public, s-maxage=60, stale-while-revalidate=600`; saat GAS gagal, salinan
+  terakhir tetap disajikan. GET `/api/orders` dan `/api/orders/:id` memakai
+  aksi sesi-gabungan; POST tetap lewat `requireSession`.
+- **Klien**: hook `useProducts` (cache memori + `sessionStorage`, TTL 5 menit,
+  refresh di belakang layar) dipakai `Home`, `Catalog`, dan `ProductDetail`.
+  `Orders` menyimpan salinan per pengguna, memperbaiki listener
+  `pageshow`/`visibilitychange` (tidak lagi memuat ganda saat tab aktif), dan
+  `AuthContext` menyimpan petunjuk sesi agar halaman tidak tertahan.
+- **Gambar**: seluruh JPEG produk/kampanye di-re-encode (maks 1200 px, q72,
+  progresif): total 1.444 KB → 770 KB; hero 100 KB → 60 KB. Ditambah
+  `width`/`height`, `loading`, `fetchpriority` untuk hero, dan
+  `Cache-Control: public, max-age=3600, stale-while-revalidate=86400` untuk
+  `/products/*` dan `/campaigns/*`.
+
+### Verifikasi
+
+Deploy: GAS versi 12 (URL sama), `main` `eeee387`, bundle
+`assets/index-VCMFv7Ox.js`.
+
+Harness lokal (handler Vercel + GAS asli): **16/16 lolos** — katalog, register,
+`/api/me`, daftar pesanan, buat pesanan, stok turun, detail pesanan, 401 tanpa
+sesi, pemulihan stok lewat `cleanupTestData`.
+
+Produksi:
+
+| Uji | Hasil |
+|---|---|
+| `/api/products` panggilan pertama | 200, 2,89 dtk, `x-vercel-cache: MISS` |
+| `/api/products` panggilan berikutnya | 200, 48 ms, `HIT` (age 2) |
+| Siklus kedaluwarsa cache | `STALE` → revalidasi → `HIT` (age 30) |
+| Header cache katalog | `public` (Vercel menormalkan `s-maxage`) |
+| Header gambar | `public, max-age=3600, stale-while-revalidate=86400` |
+| Register / login | 201 / 200 |
+| `GET /api/orders` (sesi valid) | 200, 3,66–3,77 dtk, 1 eksekusi GAS |
+| `POST /api/orders` sepatu 42 + gel ALL ×2 | 201, total Rp614.000 |
+| Stok setelah pesanan | 42: 6→5, ALL: 40→38 |
+| `GET /api/orders/:id` | 200, 2 item, size `42` & `ALL` |
+| Tanpa cookie | 401 |
+| Setelah sesi dihapus `cleanupTestData` | 401 "Sesi kedaluwarsa" |
+| Halaman `/katalog` produksi | 200, 10 produk, foto tampil |
+
+Catatan pengukuran: angka di atas sampel tunggal dan sangat dipengaruhi cold
+start Apps Script (register 6,2 dtk; buat pesanan 6,3 dtk). Perbaikan terukur
+paling jelas ada di kunjungan berulang: katalog dari >2 dtk menjadi ~50 ms
+lewat cache CDN, dan daftar pesanan turun dari tiga eksekusi GAS menjadi satu.
+
+### Pembersihan data uji
+
+Empat akun uji (dua lokal, dua produksi) dihapus lewat `cleanupTestData`
+beserta 4 sesi, 3 pesanan, dan 6 item; stok `AB-R001/42` dan
+`AB-G001/ALL` dikembalikan ke 6 dan 40. Pesanan asli pemilik tidak disentuh.
+
+### Sisa peluang (belum dikerjakan)
+
+- Register/login masih menunggu GAS (scrypt + beberapa baca sheet).
+- `getOrdersWithSession` masih membaca 4 sheet; bisa dipercepat dengan indeks
+  atau menggabungkan pembacaan, tetapi menyentuh jalur otorisasi.
+- GAS tidak mendukung HTTP cache; percepatan berikutnya harus dari CDN/klien.
+
