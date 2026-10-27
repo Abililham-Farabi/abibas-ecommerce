@@ -63,8 +63,8 @@ Setelah header terisi: blok baris 1 → **View → Freeze → 1 row**, lalu bold
 ## 4. Data awal
 
 - `Users`, `Orders`, `OrderItems`, `Sessions`: **kosongkan** (hanya header). Diisi otomatis saat register/login/checkout.
-- `Products`: isi 10 baris demo di bawah. **Cara termudah:** buka
-  `data/products.xlsx` di Excel/Numbers, blok `A1:T11`, copy, lalu tempel di
+- `Products`: isi 11 baris demo di bawah. **Cara termudah:** buka
+  `data/products.xlsx` di Excel/Numbers, blok `A1:T12`, copy, lalu tempel di
   sel `A1` tab `Products` (menimpa header lama). Sheets otomatis memecah per
   kolom. Blok di bawah adalah alternatif (copy dari file, bukan dari chat):
   tempel juga mulai `A1` karena header ikut di dalam blok — jangan mulai `A2`,
@@ -82,6 +82,7 @@ AB-C002	Tights Lari Panjang	Celana lari	Tights panjang dengan kompresi ringan. A
 AB-G001	Energy Gel Jeruk 30 g	Gel	Gel energi 30 g dengan 22 g karbohidrat, rasa jeruk. Dimakan 15–20 menit sebelum atau saat lari jauh.	25000	/products/ab-g001.svg	one											40		
 AB-G002	Energy Gel Kopi 30 g	Gel	Gel energi rasa kopi dengan kafein 40 mg per sachet. Untuk sesi panjang atau lari pagi.	25000	/products/ab-g002.svg	one											35		
 AB-W001	Botol Lari 500 ml	Botol	Botol lari 500 ml dengan tutup bite valve dan pegangan tangan. Muat di sabuk lari.	89000	/products/ab-w001.jpg	one											12		
+AB-J001	Jam Lari GPS Pace	Jam	Jam lari GPS dengan detak jantung pergelangan, pace dan rute real-time, serta baterai tahan hingga 14 hari. Ringan untuk sesi harian sampai lari jarak jauh.	1899000	/products/ab-j001.jpg	one											8
 ```
 
 - `sizeType` menentukan kolom stok mana yang dipakai:
@@ -90,13 +91,13 @@ AB-W001	Botol Lari 500 ml	Botol	Botol lari 500 ml dengan tutup bite valve dan pe
   |---|---|---|
   | `shoes` | 39–44 | `stock39` … `stock44` |
   | `apparel` | S, M, L, XL | `stockS` … `stockXL` |
-  | `one` | satu ukuran (gel, botol) | `stockOne` (dibaca sistem sebagai ukuran `ALL`) |
+  | `one` | satu ukuran (gel, botol, jam) | `stockOne` (dibaca sistem sebagai ukuran `ALL`) |
 
   Kolom stok yang tidak dipakai **biarkan kosong** — jangan diisi `0`, agar
   tidak bingung saat mengecek stok.
 - `description`: tulis singkat + kegunaan, contoh:
   `Sepatu lari harian dengan busa responsif. Nyaman untuk 5–10 km di aspal.`
-- `imageUrl`: `/products/ab-r001.jpg` … `/products/ab-w001.jpg`; gel memakai
+- `imageUrl`: `/products/ab-r001.jpg` … `/products/ab-j001.jpg`; gel memakai
   placeholder SVG `/products/ab-g001.svg` sampai foto asli tersedia (lihat
   `public/products/SOURCES.md`).
 - `createdAt/updatedAt`: **boleh kosong**. Sistem mengisi `updatedAt` sendiri
@@ -108,18 +109,18 @@ Tab `Products` versi lama hanya punya `stockS…stockXL` dan 8 baris kaos/kemeja
 hoodie. Dua cara, pilih salah satu:
 
 **A. Mulai bersih (disarankan untuk demo).**
-1. Buka `data/products.xlsx` → blok `A1:T11` → copy.
+1. Buka `data/products.xlsx` → blok `A1:T12` → copy.
 2. Di tab `Products`, klik sel `A1` → tempel. Header lama (12 kolom) dan
-   8 baris lama tertimpa; sheet baru 11 baris jadi tidak ada sisa baris
+   8 baris lama tertimpa; sheet baru 12 baris jadi tidak ada sisa baris
    di bawahnya.
-3. Cek: header baris 1 = 20 kolom sesuai §2, baris 2–11 = 10 produk lari.
+3. Cek: header baris 1 = 20 kolom sesuai §2, baris 2–12 = 11 produk lari.
 
 **B. Pertahankan baris lama.**
 1. Sisipkan **1 kolom** setelah `imageUrl` → beri nama `sizeType`.
 2. Sisipkan **7 kolom** sebelum `createdAt` → beri nama `stock39`, `stock40`,
    `stock41`, `stock42`, `stock43`, `stock44`, `stockOne`.
 3. Isi `sizeType` baris lama dengan `apparel` (kolom stoknya sudah terisi).
-4. Tambahkan 10 baris produk lari dari `data/products.xlsx` di bawah baris lama.
+4. Tambahkan 11 baris produk lari dari `data/products.xlsx` di bawah baris lama.
 
 > Pesanan lama di `Orders`/`OrderItems` **tidak perlu diubah**: nama & harga
 > produk disimpan sebagai snapshot saat checkout, jadi riwayat tetap terbaca
@@ -148,6 +149,6 @@ hoodie. Dua cara, pilih salah satu:
 - [ ] 5 tab, nama persis.
 - [ ] Header baris 1 persis, tanpa spasi tambahan.
 - [ ] Harga/stok angka murni.
-- [ ] Kategori hanya: `Sepatu lari`, `Baju lari`, `Celana lari`, `Gel`, `Botol`.
+- [ ] Kategori hanya: `Sepatu lari`, `Baju lari`, `Celana lari`, `Jam`, `Gel`, `Botol`.
 - [ ] `sizeType` hanya `shoes`, `apparel`, atau `one`.
 - [ ] 4 tab selain Products hanya header.

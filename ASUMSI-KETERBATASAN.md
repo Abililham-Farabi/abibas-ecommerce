@@ -2,7 +2,7 @@
 
 ## Asumsi yang dipakai (ditandai eksplisit)
 
-1. **Produk & stok demo.** 10 produk dan semua stok adalah data demonstrasi,
+1. **Produk & stok demo.** 11 produk dan semua stok adalah data demonstrasi,
    struktur disamakan antara `src/data/products.demo.js`, `Code.gs`, dan Sheets.
 2. **Kebijakan penukaran demo.** Isi mengikuti PDF (gratis 1× / 7 hari / label
    utuh); memerlukan konfirmasi pemilik sebelum dipakai komersial.
@@ -16,7 +16,7 @@
    (`39≈24,5 cm` … `44≈27 cm`) adalah perkiraan panjang kaki, bukan ukuran insole
    resmi — tiap merek bisa berbeda.
 7. **Foto referensi gaya.** Foto produk diambil dari Unsplash dan sebagian
-   menampilkan merek lain (Nike, Adidas). Tidak ada klaim afiliasi; lihat
+   menampilkan merek lain (Nike, Adidas, Garmin). Tidak ada klaim afiliasi; lihat
    `public/products/SOURCES.md`.
 8. **Customer Profile = hipotesis.** Segmen & prioritas pain/gain adalah penilaian
    pemilik brand di PDF, bukan hasil survei — belum tervalidasi.

@@ -8,6 +8,7 @@ const CATS = [
   { label: 'Sepatu', to: '/katalog?kat=Sepatu%20lari' },
   { label: 'Baju', to: '/katalog?kat=Baju%20lari' },
   { label: 'Celana', to: '/katalog?kat=Celana%20lari' },
+  { label: 'Jam', to: '/katalog?kat=Jam' },
   { label: 'Gel', to: '/katalog?kat=Gel' },
   { label: 'Botol', to: '/katalog?kat=Botol' },
 ];
@@ -68,11 +69,11 @@ export default function Navbar() {
             ))}
           </nav>
 
-          <form onSubmit={search} className="ml-auto hidden min-w-0 flex-1 max-w-xs items-center md:flex" role="search">
+          <form onSubmit={search} className="ml-auto hidden min-w-0 flex-1 max-w-xs items-center lg:flex" role="search">
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Cari sepatu, baju, gel…"
+              placeholder="Cari sepatu, baju, jam…"
               aria-label="Cari produk"
               className="input rounded-full"
             />
@@ -121,11 +122,11 @@ export default function Navbar() {
           </div>
         </div>
 
-        <form onSubmit={search} className="pb-3 md:hidden" role="search">
+        <form onSubmit={search} className="pb-3 lg:hidden" role="search">
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Cari sepatu, baju, gel…"
+            placeholder="Cari sepatu, baju, jam…"
             aria-label="Cari produk"
             className="input rounded-full"
           />
