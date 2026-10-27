@@ -52,7 +52,7 @@ export default function Navbar() {
           </button>
 
           <Link to="/" className="flex items-center gap-2" aria-label="Abibas — beranda">
-            <img src="/logo-mark.svg" alt="" className="h-8 w-8" aria-hidden="true" />
+            <img src="/logo-mark.svg" alt="" className="h-10 w-10" aria-hidden="true" />
             <span className="font-display text-xl font-bold tracking-tight">Abibas</span>
           </Link>
 
