@@ -1,7 +1,7 @@
 # Sumber Foto — Abibas
 
 Foto di `public/products/` diunduh dari **Unsplash** (`images.unsplash.com`)
-pada 20 Okt 2026 dan disimpan lokal agar tidak bergantung pada URL eksternal.
+pada 20–27 Okt 2026 dan disimpan lokal agar tidak bergantung pada URL eksternal.
 
 ## Lisensi
 
@@ -23,6 +23,7 @@ Lihat `https://unsplash.com/license`.
 | `ab-g001.jpg` | Foto pemilik proyek (22 Okt 2026) | Energy Gel |
 | `ab-g002.jpg` | Foto pemilik proyek (22 Okt 2026) | Energy Gel Plus |
 | `ab-w001.jpg` | `photo-1602143407151-7111542de6e8` | Botol Lari 500 ml |
+| `ab-j001.jpg` | `photo-1656955003707-9a86ad069bb3` (JJ Shev) | Jam Lari GPS Pace |
 | `hero.jpg` | `photo-1552674605-db6ffd4facb5` | Hero beranda (pelari saat matahari terbit) |
 
 Dua foto gel adalah **foto milik pemilik proyek**, bukan dari Unsplash. Foto
@@ -32,7 +33,7 @@ placeholder SVG lama (`ab-g001.svg`, `ab-g002.svg`) disimpan sebagai cadangan.
 ## Kejujuran visual
 
 Foto-foto ini adalah **foto referensi gaya (ilustrasi)** — bukan foto produk
-aktual Abibas, dan sebagian menampilkan merek lain (Nike, Adidas, SiS, Maurten). Warna,
+aktual Abibas, dan sebagian menampilkan merek lain (Nike, Adidas, SiS, Maurten, Garmin). Warna,
 model, dan detail bisa berbeda dari barang demo. Keterangan ini disampaikan
 secara halus di halaman produk ("Foto referensi gaya — bukan foto produk
 aktual").

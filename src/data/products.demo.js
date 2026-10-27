@@ -111,6 +111,17 @@ export const DEMO_PRODUCTS = [
     sizeType: 'one',
     stock: { ALL: 12 },
   },
+  {
+    productId: 'AB-J001',
+    name: 'Jam Lari GPS Pace',
+    category: 'Jam',
+    description:
+      'Jam lari GPS dengan detak jantung pergelangan, pace dan rute real-time, serta baterai tahan hingga 14 hari. Ringan untuk sesi harian sampai lari jarak jauh.',
+    price: 1899000,
+    imageUrl: '/products/ab-j001.jpg',
+    sizeType: 'one',
+    stock: { ALL: 8 },
+  },
 ];
 
-export const CATEGORIES = ['Sepatu lari', 'Baju lari', 'Celana lari', 'Gel', 'Botol'];
+export const CATEGORIES = ['Sepatu lari', 'Baju lari', 'Celana lari', 'Jam', 'Gel', 'Botol'];

@@ -60,7 +60,7 @@ npm run preview  # pratinjau hasil build
 
 ## Penyiapan Google Sheets
 
-Ikuti **`PANDUAN-SPREADSHEET.md`** (nama sheet + header + 8 produk awal).
+Ikuti **`PANDUAN-SPREADSHEET.md`** (nama sheet + header + 11 produk awal).
 Ringkasan kolom:
 
 - Users: `userId, name, email, passwordHash, createdAt`
@@ -101,7 +101,7 @@ VITE_DATA_MODE=sheets
    `APPS_SCRIPT_URL`, `APPS_SCRIPT_SHARED_SECRET`, `VITE_DATA_MODE=sheets`.
    Nilainya **jangan** ber-prefix `VITE_` kecuali `VITE_DATA_MODE`.
 4. Deploy. Frontend + `/api/*` ter-host dalam satu domain.
-5. Uji: `https://<project>.vercel.app/api/products` harus balas JSON 8 produk;
+5. Uji: `https://<project>.vercel.app/api/products` harus balas JSON 11 produk;
    buka `/katalog` (produk dari Sheets, bukan data demo) → register → login →
    checkout → riwayat.
 

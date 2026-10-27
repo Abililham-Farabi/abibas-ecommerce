@@ -139,7 +139,7 @@ export default function Catalog() {
         <input
           value={q}
           onChange={(e) => set('q', e.target.value)}
-          placeholder="Cari sepatu, baju, celana, gel…"
+          placeholder="Cari sepatu, baju, jam…"
           aria-label="Cari produk"
           className="input lg:max-w-sm"
         />

@@ -7,6 +7,7 @@ const CATS = [
   { label: 'Sepatu lari', to: '/katalog?kat=Sepatu%20lari', img: '/products/ab-r001.jpg' },
   { label: 'Baju lari', to: '/katalog?kat=Baju%20lari', img: '/products/ab-b001.jpg' },
   { label: 'Celana lari', to: '/katalog?kat=Celana%20lari', img: '/products/ab-c001.jpg' },
+  { label: 'Jam', to: '/katalog?kat=Jam', img: '/products/ab-j001.jpg' },
   { label: 'Gel', to: '/katalog?kat=Gel', img: '/products/ab-g001.jpg' },
   { label: 'Botol', to: '/katalog?kat=Botol', img: '/products/ab-w001.jpg' },
 ];
@@ -29,7 +30,7 @@ export default function Home() {
               Untuk tiap kilometer.
             </h1>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-white/70">
-              Sepatu, baju, celana, gel, dan botol lari — mulai Rp25 ribu.
+              Sepatu, baju, celana, jam, gel, dan botol lari — mulai Rp25 ribu.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
@@ -64,7 +65,7 @@ export default function Home() {
             Semua produk →
           </Link>
         </div>
-        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
           {CATS.map((c) => (
             <Link key={c.label} to={c.to} className="group">
               <div className="overflow-hidden rounded-2xl bg-ink-100">

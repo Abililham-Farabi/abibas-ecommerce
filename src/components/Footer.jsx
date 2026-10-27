@@ -7,8 +7,8 @@ export default function Footer() {
         <div>
           <p className="font-display text-lg font-bold">Abibas</p>
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-ink-500">
-            Perlengkapan lari brand sendiri — sepatu, baju, celana, gel, dan
-            botol. Harga jelas, pesanan terpantau sampai tiba.
+            Perlengkapan lari brand sendiri — sepatu, baju, celana, jam, gel,
+            dan botol. Harga jelas, pesanan terpantau sampai tiba.
           </p>
         </div>
         <nav aria-label="Belanja">
@@ -18,6 +18,7 @@ export default function Footer() {
             <li><Link className="hover:underline" to="/katalog?kat=Sepatu%20lari">Sepatu lari</Link></li>
             <li><Link className="hover:underline" to="/katalog?kat=Baju%20lari">Baju lari</Link></li>
             <li><Link className="hover:underline" to="/katalog?kat=Celana%20lari">Celana lari</Link></li>
+            <li><Link className="hover:underline" to="/katalog?kat=Jam">Jam</Link></li>
             <li><Link className="hover:underline" to="/katalog?kat=Gel">Gel</Link></li>
             <li><Link className="hover:underline" to="/katalog?kat=Botol">Botol</Link></li>
           </ul>
