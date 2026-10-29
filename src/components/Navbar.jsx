@@ -52,9 +52,8 @@ export default function Navbar() {
             </svg>
           </button>
 
-          <Link to="/" className="flex items-center gap-2" aria-label="Abibas — beranda">
-            <img src="/logo-mark.svg" alt="" className="h-10 w-10" aria-hidden="true" />
-            <span className="font-display text-xl font-bold tracking-tight">Abibas</span>
+          <Link to="/" className="flex shrink-0 items-center" aria-label="Abibas — beranda">
+            <img src="/logo-abibas.png" alt="Abibas" className="h-8 w-auto sm:h-9" />
           </Link>
 
           <nav className="ml-2 hidden items-center gap-1 md:flex" aria-label="Kategori">
